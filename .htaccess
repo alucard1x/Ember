@@ -1,0 +1,11 @@
+# Errors are logged, never printed to the page. Set display_errors On here
+# temporarily if you need to debug locally.
+php_value display_errors 0
+php_value log_errors 1
+
+DirectoryIndex index.php
+
+# Do not serve the SQL dumps or docs over HTTP
+<FilesMatch "\.(sql|md|flag)$">
+    Require all denied
+</FilesMatch>

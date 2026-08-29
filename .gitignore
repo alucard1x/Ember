@@ -1,0 +1,20 @@
+# OS cruft
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Secrets — never commit real credentials.
+# .env.example is committed as a template; .env is not.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Local setup state
+setup_completed.flag
+
+# Editor
+.vscode/
+.idea/

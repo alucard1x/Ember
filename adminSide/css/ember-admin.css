@@ -1,0 +1,769 @@
+/* =====================================================================
+   Ember — staff panel theme
+   ---------------------------------------------------------------------
+   A skin layered over SB Admin + Bootstrap so the staff panel reads as
+   the same restaurant as the customer site: the ember palette, Montserrat
+   for text, Copperplate for the wordmark, square corners, hairline rules
+   and uppercase letter-spaced labels instead of the stock blue chrome.
+
+   Loaded AFTER css/styles.css in includes/dashHeader.php, so everything
+   here is an override. Nothing in styles.css was edited.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
+
+:root {
+    /* Same values the customer site uses in customerSide/css/style.css */
+    --brand-font: Copperplate, 'Copperplate Gothic Light', 'Optima',
+                  'Palatino Linotype', Palatino, Georgia, serif;
+    --brand-accent: #b1462f;
+    --brand-accent-soft: rgba(177, 70, 47, 0.16);
+    --brand-ink: #14100f;
+
+    /* Surfaces, darkest to lightest */
+    --ink-900: #0f0c0b;   /* page ground   */
+    --ink-800: #14100f;   /* chrome        */
+    --ink-700: #191413;   /* raised panels */
+    --ink-600: #221b19;   /* inputs, hover */
+
+    --line: rgba(255, 255, 255, 0.10);
+    --line-strong: rgba(255, 255, 255, 0.18);
+
+    --text: #f3efec;
+    --text-dim: #b9aea8;
+    --text-faint: #8b807a;
+
+    /* Table / order states, tuned to sit beside the ember accent */
+    --state-free: #17594a;
+    --state-busy: #a8102f;
+    --state-held: #c9a227;
+}
+
+/* ---------- Ground ---------------------------------------------- */
+
+html,
+body,
+body.sb-nav-fixed {
+    background-color: var(--ink-900);
+    color: var(--text);
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.01rem;
+}
+
+#layoutSidenav,
+#layoutSidenav_content,
+main {
+    background-color: transparent;
+}
+
+/* The stock template puts a white card behind page content. */
+.container,
+.container-fluid,
+.wrapper {
+    background-color: transparent;
+}
+
+/* ---------- Headings -------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text);
+    font-weight: 300;
+    letter-spacing: 0.22rem;
+    text-transform: uppercase;
+}
+
+h1 { font-size: 2.1rem; }
+h2 { font-size: 1.7rem; }
+h3 { font-size: 1.4rem; }
+h4 { font-size: 1.2rem; }
+h5, h6 { font-size: 1rem; letter-spacing: 0.18rem; }
+
+/* The hairline under a page title, exactly as on the customer site. */
+.wrapper h2,
+.container-fluid > .row h2,
+h2.pull-left {
+    position: relative;
+    padding-bottom: 16px;
+    margin-bottom: 6px;
+}
+.wrapper h2::after,
+.container-fluid > .row h2::after,
+h2.pull-left::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: block;
+    width: 54px;
+    height: 1px;
+    background-color: var(--brand-accent);
+}
+
+/* A few pages centre their title inline; centre its rule to match. */
+.wrapper h2[style*="center"]::after,
+.container-fluid > .row h2[style*="center"]::after,
+h2[style*="center"]::after,
+h1[style*="center"]::after {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+p, label, .small, small {
+    color: var(--text-dim);
+}
+
+a {
+    color: var(--brand-accent);
+    text-decoration: none;
+    transition: color 0.25s ease;
+}
+a:hover {
+    color: #d8674c;
+    text-decoration: none;
+}
+
+hr {
+    border-top: 1px solid var(--line);
+}
+
+/* ---------- Top bar --------------------------------------------- */
+
+.sb-topnav {
+    /* Height stays at the template's 56px — the sidenav and content column
+       are both offset by that number. */
+    background-color: rgba(15, 12, 11, 0.96) !important;
+    border-bottom: 1px solid var(--line);
+}
+
+.sb-topnav .navbar-brand {
+    font-family: var(--brand-font);
+    font-size: 1.15rem;
+    font-weight: 400;
+    letter-spacing: 0.32rem;
+    text-transform: uppercase;
+    color: var(--text) !important;
+    transition: color 0.3s ease;
+}
+.sb-topnav .navbar-brand:hover {
+    color: var(--brand-accent) !important;
+}
+
+/* The way back to the customer site: the Ember wordmark, set in the same
+   engraved face the site header uses. */
+.ember-site-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+    margin-right: 22px;
+    padding: 7px 16px;
+    border: 1px solid var(--line-strong);
+    color: var(--text-dim);
+    transition: border-color 0.3s ease, color 0.3s ease,
+                background-color 0.3s ease;
+}
+.ember-site-link:hover {
+    border-color: var(--brand-accent);
+    background-color: var(--brand-accent-soft);
+    color: var(--text);
+}
+.ember-site-mark {
+    font-family: var(--brand-font);
+    font-size: 0.95rem;
+    letter-spacing: 0.26rem;
+    text-transform: uppercase;
+    color: var(--text);
+}
+.ember-site-link:hover .ember-site-mark {
+    color: var(--brand-accent);
+}
+.ember-site-link i {
+    font-size: 0.62rem;
+    opacity: 0.75;
+}
+@media (max-width: 767px) {
+    .ember-site-link { gap: 8px; padding: 6px 12px; margin-right: 12px; }
+}
+
+.sb-topnav #sidebarToggle {
+    color: var(--text-dim);
+    transition: color 0.25s ease;
+}
+.sb-topnav #sidebarToggle:hover {
+    color: var(--brand-accent);
+}
+
+/* ---------- Side navigation -------------------------------------- */
+
+.sb-sidenav.sb-sidenav-dark {
+    background-color: var(--ink-800);
+    border-right: 1px solid var(--line);
+}
+
+.sb-sidenav-dark .sb-sidenav-menu-heading {
+    color: var(--brand-accent);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.28rem;
+    text-transform: uppercase;
+    padding: 26px 16px 10px;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-weight: 300;
+    letter-spacing: 0.12rem;
+    padding: 11px 16px;
+    border-left: 2px solid transparent;
+    transition: color 0.25s ease, background-color 0.25s ease,
+                border-color 0.25s ease;
+}
+.sb-sidenav-dark .sb-sidenav-menu .nav-link .sb-nav-link-icon {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    transition: color 0.25s ease;
+}
+.sb-sidenav-dark .sb-sidenav-menu .nav-link:hover,
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active {
+    color: var(--text);
+    background-color: var(--brand-accent-soft);
+    border-left-color: var(--brand-accent);
+}
+.sb-sidenav-dark .sb-sidenav-menu .nav-link:hover .sb-nav-link-icon,
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
+    color: var(--brand-accent);
+}
+
+.sb-sidenav-dark .sb-sidenav-footer {
+    background-color: var(--ink-900);
+    border-top: 1px solid var(--line);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    letter-spacing: 0.06rem;
+    padding: 16px;
+}
+.sb-sidenav-dark .sb-sidenav-footer .small {
+    color: var(--brand-accent);
+    font-size: 0.6rem;
+    letter-spacing: 0.24rem;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+/* ---------- Panels and cards ------------------------------------- */
+
+.card {
+    background-color: var(--ink-700);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    color: var(--text);
+    box-shadow: none;
+}
+.card-header {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 0.78rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+}
+.card-body { color: var(--text-dim); }
+.card-footer {
+    background-color: transparent;
+    border-top: 1px solid var(--line);
+}
+
+/* ---------- Tables ------------------------------------------------ */
+
+/* Wide tables (Reservations, Bills, Accounts) scroll inside their own box
+   instead of pushing the page sideways. */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+}
+.table-scroll .table,
+.table-scroll .table.table-bordered {
+    border-left: none;
+    border-right: none;
+    margin-bottom: 0;
+}
+
+.table {
+    color: var(--text);
+    background-color: var(--ink-700);
+    border-color: var(--line);
+    font-size: 0.85rem;
+    font-weight: 300;
+    margin-bottom: 0;
+
+    /* Bootstrap drives striping and hover through these variables and its own
+       dark ink; left alone, every other row renders near-black on near-black. */
+    --bs-table-color: #f3efec;
+    --bs-table-bg: transparent;
+    --bs-table-striped-color: #f3efec;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.022);
+    --bs-table-hover-color: #f3efec;
+    --bs-table-hover-bg: rgba(177, 70, 47, 0.16);
+    --bs-table-active-color: #f3efec;
+    --bs-table-active-bg: rgba(177, 70, 47, 0.16);
+    --bs-table-border-color: rgba(255, 255, 255, 0.10);
+}
+/* Bootstrap 4 has no such variables — it sets the colour on the row itself. */
+.table tbody tr,
+.table tbody td,
+.table tbody th,
+.table-striped tbody tr:nth-of-type(odd),
+.table-striped tbody tr:nth-of-type(odd) td,
+.table-striped tbody tr:nth-of-type(odd) th {
+    color: var(--text);
+}
+.table thead th {
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    border-color: var(--line) !important;
+    padding: 14px 12px;
+    white-space: nowrap;
+}
+.table td {
+    border-color: var(--line) !important;
+    padding: 13px 12px;
+    vertical-align: middle;
+}
+.table.table-bordered,
+.table.table-bordered th,
+.table.table-bordered td {
+    border-color: var(--line);
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.022);
+}
+.table-hover tbody tr:hover,
+.table tbody tr:hover {
+    background-color: var(--brand-accent-soft);
+    color: var(--text);
+}
+.table a { color: var(--brand-accent); }
+.table .text-black,
+.table .fa-trash,
+.table .fa-pen,
+.table .fa-pencil {
+    color: var(--text-dim) !important;
+    transition: color 0.25s ease;
+}
+.table a:hover .text-black,
+.table a:hover .fa-trash {
+    color: var(--brand-accent) !important;
+}
+
+/* ---------- Forms -------------------------------------------------- */
+
+.form-label,
+label {
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.18rem;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+}
+
+.form-control,
+.form-select,
+select.form-control,
+textarea.form-control,
+input[type="text"].form-control,
+input[type="number"].form-control,
+input[type="date"].form-control,
+input[type="time"].form-control,
+input[type="email"].form-control,
+input[type="password"].form-control {
+    background-color: var(--ink-600);
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 300;
+    padding: 10px 13px;
+    box-shadow: none;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+/* Some forms use bare inputs with no .form-control; give them the same field. */
+main input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+main select,
+main textarea {
+    background-color: var(--ink-600);
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 300;
+    padding: 10px 13px;
+    box-shadow: none;
+}
+main input:focus,
+main select:focus,
+main textarea:focus {
+    background-color: #2a2220;
+    border-color: var(--brand-accent);
+    outline: none;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #2a2220;
+    border-color: var(--brand-accent);
+    color: var(--text);
+    box-shadow: none;
+    outline: none;
+}
+.form-control::placeholder { color: var(--text-faint); }
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text-faint);
+}
+/* Native dropdown lists paint on the OS surface, so keep them legible. */
+option { color: var(--brand-ink); background-color: #ffffff; }
+
+/* Date/time pickers ship a black glyph that vanishes on a dark field. */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.55);
+    cursor: pointer;
+}
+
+.invalid-feedback { color: #e0715c; font-size: 0.75rem; letter-spacing: 0.04rem; }
+.form-control.is-invalid { border-color: #e0715c; }
+.form-control.is-valid { border-color: var(--state-free); }
+
+/* ---------- Buttons ------------------------------------------------ */
+
+.btn {
+    border-radius: 0;
+    white-space: nowrap;
+    /* Some panels drop a button straight into a flex row, which stretched it
+       across the whole column. */
+    align-self: flex-start;
+    width: auto;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    transition: background-color 0.28s ease, color 0.28s ease,
+                border-color 0.28s ease;
+}
+.btn:focus, .btn:active:focus { box-shadow: none; }
+
+/* One primary treatment — the outlined ember button from the site. */
+.btn-dark,
+.btn-primary,
+.btn-outline-dark,
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--brand-accent);
+    color: var(--text);
+}
+.btn-dark:hover,
+.btn-primary:hover,
+.btn-outline-dark:hover,
+.btn-secondary:hover,
+.btn-dark:focus,
+.btn-primary:focus,
+.btn-outline-dark:focus {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #ffffff;
+}
+
+/* Quiet secondary — "Show All", "Cancel", "Back". */
+.btn-light,
+.btn-outline-secondary {
+    background-color: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--text-dim);
+}
+.btn-light:hover,
+.btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: var(--text-dim);
+    color: var(--text);
+}
+
+.btn-danger {
+    background-color: transparent;
+    border: 1px solid var(--state-busy);
+    color: #e0715c;
+}
+.btn-danger:hover {
+    background-color: var(--state-busy);
+    border-color: var(--state-busy);
+    color: #ffffff;
+}
+
+.btn-success {
+    background-color: transparent;
+    border: 1px solid var(--state-free);
+    color: #6fbfa8;
+}
+.btn-success:hover {
+    background-color: var(--state-free);
+    border-color: var(--state-free);
+    color: #ffffff;
+}
+
+.btn-warning {
+    background-color: transparent;
+    border: 1px solid var(--state-held);
+    color: var(--state-held);
+}
+.btn-warning:hover {
+    background-color: var(--state-held);
+    border-color: var(--state-held);
+    color: var(--brand-ink);
+}
+
+.btn-link { color: var(--brand-accent); letter-spacing: 0.1rem; }
+
+/* ---------- Alerts -------------------------------------------------- */
+
+.alert {
+    background-color: var(--ink-700);
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--line-strong);
+    border-radius: 0;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    letter-spacing: 0.05rem;
+    padding: 14px 18px;
+}
+.alert-danger  { border-left-color: var(--state-busy); color: #e6a49a; }
+.alert-success { border-left-color: var(--state-free); color: #8ecdb9; }
+.alert-warning { border-left-color: var(--state-held); color: #e2cd8a; }
+.alert-info    { border-left-color: var(--brand-accent); color: var(--text-dim); }
+.alert em { font-style: normal; }
+
+/* ---------- Table-status board (POS) --------------------------------- */
+
+.table-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 18px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.table-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 132px;
+    padding: 18px 12px;
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--line-strong);
+    background-color: var(--ink-700);
+    color: var(--text);
+    text-align: center;
+    transition: background-color 0.25s ease, border-color 0.25s ease,
+                transform 0.25s ease;
+}
+.table-tile:hover {
+    color: var(--text);
+    transform: translateY(-2px);
+    background-color: var(--ink-600);
+}
+.table-tile .tile-id {
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.14rem;
+    line-height: 1.1;
+}
+.table-tile .tile-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.28rem;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+.table-tile .tile-capacity {
+    font-size: 0.72rem;
+    letter-spacing: 0.16rem;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+.table-tile .tile-status {
+    margin-top: 6px;
+    font-size: 0.58rem;
+    letter-spacing: 0.24rem;
+    text-transform: uppercase;
+}
+
+/* State is carried by the top rule and a tint, not a slab of colour —
+   ten saturated blocks fight the rest of the panel. */
+.table-tile.is-free   { border-top-color: var(--state-free); }
+.table-tile.is-busy   { border-top-color: var(--state-busy); }
+.table-tile.is-held   { border-top-color: var(--state-held); }
+.table-tile.is-idle   { border-top-color: var(--line-strong); }
+
+.table-tile.is-free .tile-status { color: #6fbfa8; }
+.table-tile.is-busy .tile-status { color: #e0715c; }
+.table-tile.is-held .tile-status { color: var(--state-held); }
+.table-tile.is-idle .tile-status { color: var(--text-faint); }
+
+.table-tile.is-free:hover { border-color: rgba(23, 89, 74, 0.7); }
+.table-tile.is-busy:hover { border-color: rgba(168, 16, 47, 0.7); }
+.table-tile.is-held:hover { border-color: rgba(201, 162, 39, 0.7); }
+
+/* Legend */
+.board-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 34px;
+    max-width: 900px;
+    margin: 40px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.66rem;
+    letter-spacing: 0.24rem;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+.legend-swatch {
+    width: 22px;
+    height: 2px;
+    display: inline-block;
+}
+.legend-swatch.is-free { background-color: var(--state-free); }
+.legend-swatch.is-busy { background-color: var(--state-busy); }
+.legend-swatch.is-held { background-color: var(--state-held); }
+
+/* ---------- Page furniture ------------------------------------------ */
+
+/* The sidebar is position:fixed and the panels sit beside it as flex children
+   of #layoutSidenav, so each page hard-coded .wrapper{width:50%;
+   padding-left:200px} to clear it — with a different number per page. Clear it
+   once here instead, and let the content take a readable measure. */
+/* dashHeader.php now opens #layoutSidenav_content properly, so the template
+   itself offsets the content past the fixed sidebar and top bar. Each page
+   still carries its old compensation — .wrapper{width:1300px;
+   padding-left:200px} and friends — which would push it off to the right;
+   overridden here once instead of edited in twenty files. */
+.wrapper {
+    width: auto !important;
+    max-width: 1180px;
+    padding-left: 0 !important;
+    padding-right: 0;
+    padding-top: 0 !important;
+}
+
+/* One consistent gutter for the content column, whatever the page wraps in. */
+#layoutSidenav_content > main {
+    padding: 34px 44px 64px;
+    /* Reservations and Bills are wider than the column; let them scroll here
+       rather than spilling under the viewport edge. */
+    overflow-x: auto;
+}
+@media (max-width: 991px) {
+    #layoutSidenav_content > main { padding: 24px 20px 48px; }
+}
+
+/* More sidebar compensation baked into the panels' own markup. */
+.pl-600, .pl-500 { padding-left: 0 !important; }
+main > .container,
+main > .container-fluid,
+main .wrapper > .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    max-width: none;
+}
+main > .container-fluid.pt-5,
+main .wrapper > .container-fluid.pt-5 {
+    padding-top: 0 !important;
+}
+
+/* ---------- Footer --------------------------------------------------- */
+
+.ember-footer {
+    margin-top: auto;   /* #layoutSidenav_content is a flex column */
+    padding: 30px 44px 34px;
+    border-top: 1px solid var(--line);
+    background-color: rgba(12, 9, 8, 0.6);
+    text-align: center;
+}
+.ember-footer .footer-credit {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 300;
+    letter-spacing: 0.06rem;
+    color: var(--text);
+}
+.ember-footer .footer-project-tag {
+    margin: 8px 0 0;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.22rem;
+    text-transform: uppercase;
+    color: rgba(243, 239, 236, 0.65);
+}
+
+.pagination .page-link {
+    background-color: var(--ink-700);
+    border-color: var(--line);
+    color: var(--text-dim);
+    border-radius: 0;
+}
+.pagination .page-item.active .page-link {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #ffffff;
+}
+
+/* Charts on the report pages sit on dark now. The chart holders carry inline
+   width:113% from the original layout, which overflowed the column. */
+canvas { max-width: 100%; }
+.chart-holder {
+    width: 100%;
+    max-width: 620px;
+    height: 420px;
+    margin: 10px 0 40px;
+}
+#mostPurchased,
+#mostPurchasedMain,
+#mostPurchasedDrinks,
+#mostPurchasedSide,
+#paymentMethodChart,
+#paymentMethodDonutChart {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 40px;
+}
+
+::selection {
+    background-color: var(--brand-accent);
+    color: #ffffff;
+}
+
+/* Scrollbars, so the dark panels don't get a bright gutter. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--ink-900); }
+::-webkit-scrollbar-thumb {
+    background: #332a27;
+    border: 2px solid var(--ink-900);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--brand-accent); }

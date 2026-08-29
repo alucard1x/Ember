@@ -1,0 +1,845 @@
+@import 'https://fonts.googleapis.com/css?family=Montserrat:300, 400, 700&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap';
+
+:root {
+	/* Brand wordmark: Copperplate where available, with graceful serif fallbacks
+	   so the Ember mark still reads as engraved lettering on every platform. */
+	--brand-font: Copperplate, 'Copperplate Gothic Light', 'Optima', 'Palatino Linotype', Palatino, Georgia, serif;
+	--brand-accent: #b1462f;
+	--brand-ink: #14100f;
+}
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 10px;
+	font-family: 'Montserrat', sans-serif;
+	scroll-behavior: smooth;
+}
+a {
+	text-decoration: none;
+}
+.container {
+	min-height: 100vh;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+img {
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+}
+p {
+	color: #2b2724;
+	font-size: 1.4rem;
+	margin-top: 5px;
+	line-height: 2.5rem;
+	font-weight: 300;
+	letter-spacing: 0.05rem;
+}
+.section-title {
+	font-size: 4rem;
+	font-weight: 300;
+	color: var(--brand-ink);
+	margin-bottom: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.35rem;
+	text-align: center;
+}
+.section-title span {
+	color: var(--brand-accent);
+}
+.section-title::after {
+	content: '';
+	display: block;
+	width: 54px;
+	height: 1px;
+	margin: 24px auto 0;
+	background-color: var(--brand-accent);
+}
+
+.cta {
+	display: inline-block;
+	padding: 12px 34px;
+	color: white;
+	background-color: transparent;
+	border: 1px solid var(--brand-accent);
+	font-size: 1.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.35rem;
+	margin-top: 34px;
+	transition: 0.3s ease;
+	transition-property: background-color, color, border-color;
+}
+.cta:hover {
+	color: white;
+	background-color: var(--brand-accent);
+	border-color: var(--brand-accent);
+}
+.brand h1 {
+	font-size: 3rem;
+	text-transform: uppercase;
+	color: white;
+}
+.brand h1 span {
+	color: var(--brand-accent);
+}
+
+/* Header section */
+#header {
+	position: fixed;
+	z-index: 1000;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: auto;
+}
+#header .header {
+	min-height: 8vh;
+	background-color: rgba(20, 16, 15, 0.55);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	transition: 0.3s ease background-color;
+}
+#header .brand h1 {
+	font-family: var(--brand-font);
+	font-size: 2rem;
+	letter-spacing: 0.3rem;
+	color: #f3efec;
+	transition: color 0.3s ease;
+}
+#header .brand a:hover h1 {
+	color: var(--brand-accent);
+}
+#header .nav-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	height: 100%;
+	max-width: 1300px;
+	padding: 0 10px;
+}
+/* Keeps the nav right-aligned whether or not the brand is rendered
+   (it is hidden on the homepage, which has the wordmark in the hero). */
+#header .nav-list {
+	margin-left: auto;
+}
+#header .nav-list ul {
+	list-style: none;
+	position: absolute;
+	background-color: rgb(31, 30, 30);
+	width: 100vw;
+	height: 100vh;
+	left: 100%;
+	top: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 1;
+	overflow-x: hidden;
+	transition: 0.5s ease left;
+}
+#header .nav-list ul.active {
+	left: 0%;
+}
+#header .nav-list ul a {
+	font-size: 2.5rem;
+	font-weight: 500;
+	letter-spacing: 0.2rem;
+	text-decoration: none;
+	color: white;
+	text-transform: uppercase;
+	padding: 20px;
+	display: block;
+}
+#header .nav-list ul a::after {
+	content: attr(data-after);
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(0);
+	color: rgba(240, 248, 255, 0.021);
+	font-size: 13rem;
+	letter-spacing: 50px;
+	z-index: -1;
+	transition: 0.3s ease letter-spacing;
+}
+#header .nav-list ul li:hover a::after {
+	transform: translate(-50%, -50%) scale(1);
+	letter-spacing: initial;
+}
+#header .nav-list ul li:hover a {
+	color: var(--brand-accent);
+}
+#header .hamburger {
+	height: 60px;
+	width: 60px;
+	display: inline-block;
+	border: 3px solid white;
+	border-radius: 50%;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100;
+	cursor: pointer;
+	transform: scale(0.8);
+	margin-right: 20px;
+}
+#header .hamburger:after {
+	position: absolute;
+	content: '';
+	height: 100%;
+	width: 100%;
+	border-radius: 50%;
+	border: 3px solid white;
+	animation: hamburger_puls 1s ease infinite;
+}
+#header .hamburger .bar {
+	height: 2px;
+	width: 30px;
+	position: relative;
+	background-color: white;
+	z-index: -1;
+}
+#header .hamburger .bar::after,
+#header .hamburger .bar::before {
+	content: '';
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	left: 0;
+	background-color: white;
+	transition: 0.3s ease;
+	transition-property: top, bottom;
+}
+#header .hamburger .bar::after {
+	top: 8px;
+}
+#header .hamburger .bar::before {
+	bottom: 8px;
+}
+#header .hamburger.active .bar::before {
+	bottom: 0;
+}
+#header .hamburger.active .bar::after {
+	top: 0;
+}
+/* End Header section */
+
+/* Hero Section */
+#hero {
+	position: relative;
+	z-index: 1;
+}
+#hero::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 100%;
+	background-image: radial-gradient(
+		ellipse at center,
+		rgba(0, 0, 0, 0.30) 0%,
+		rgba(0, 0, 0, 0.62) 100%
+	);
+	z-index: -1;
+}
+#hero .hero {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 50px;
+	justify-content: center;
+}
+/* --- The Ember mark ----------------------------------------------------
+   One component, rendered identically by the loading curtain and by the
+   homepage hero (components/brandMark.php). The wordmark is the fixed point:
+   it is fully drawn while the curtain is up and does not move when the
+   curtain lifts, so the rule and the tagline settle in around a mark that was
+   already there.
+
+   Every animated property is written in its FINISHED state here. The intro
+   keyframes run from the hidden state to this one, and only once the page has
+   painted, so if the script never runs the mark simply sits there complete. */
+.brand-mark {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+.brand-word {
+	display: block;
+	font-family: var(--brand-font);
+	font-size: 4.4rem;
+	line-height: 1.05;
+	letter-spacing: 0.6rem;
+	/* Copperplate is already capitals; the extra letter-spacing sits to the
+	   right of the last glyph, so nudge the block back to stay optically centred. */
+	text-indent: 0.3rem;
+	color: #f3efec;
+}
+.brand-rule {
+	display: block;
+	position: relative;
+	width: 120px;
+	height: 1px;
+	margin-top: 28px;
+	background-color: rgba(255, 255, 255, 0.3);
+}
+.brand-tagline {
+	display: block;
+	margin-top: 22px;
+	font-size: 1.3rem;
+	font-weight: 300;
+	letter-spacing: 0.62rem;
+	text-indent: 0.31rem;
+	text-transform: uppercase;
+	color: #cfc7c2;
+}
+
+/* The curtain holds the word only. The rule and the tagline keep their space
+   so nothing shifts on the handover. */
+.brand-mark--loader .brand-tagline {
+	opacity: 0;
+}
+.brand-mark--loader .brand-rule {
+	background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* The intro, once the page is revealed. The cues overlap so it reads as a
+   single movement rather than three. */
+.ember-revealed .brand-mark--hero .brand-word {
+	/* A breath of settle, from the curtain's spacing to its own. */
+	animation: mark_settle 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.ember-revealed .brand-mark--hero .brand-rule {
+	animation: mark_rule 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s both;
+}
+.ember-revealed .brand-mark--hero .brand-tagline {
+	animation: mark_rise 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) 0.5s both;
+}
+
+@keyframes mark_settle {
+	from { letter-spacing: 0.44rem; }
+	to   { letter-spacing: 0.6rem; }
+}
+@keyframes mark_rule {
+	from { transform: scaleX(0); opacity: 0.4; }
+	to   { transform: scaleX(1); opacity: 1; }
+}
+@keyframes mark_rise {
+	from { opacity: 0; transform: translateY(10px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ember-revealed .brand-mark--hero .brand-word,
+	.ember-revealed .brand-mark--hero .brand-rule,
+	.ember-revealed .brand-mark--hero .brand-tagline {
+		animation: none;
+	}
+}
+/* End Hero Section */
+
+/* Projects section */
+#projects .projects {
+	flex-direction: column;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 100px 0;
+}
+#projects .projects-header h1 {
+	margin-bottom: 50px;
+}
+/* End Projects section */
+
+
+/* About Section -- a single measured column of text, no box */
+#about .about {
+	flex-direction: column;
+	max-width: 780px;
+	margin: 0 auto;
+	width: 90%;
+	min-height: auto;
+	padding: 130px 0;
+	align-items: stretch;
+}
+#about .about-inner {
+	width: 100%;
+}
+#about .about-inner p {
+	font-size: 1.4rem;
+	line-height: 2.9rem;
+	letter-spacing: 0.03rem;
+	margin: 0 0 24px;
+}
+/* End About Section */
+
+/* Contact Section -- three hairline-separated columns, no cards */
+#contact .contact {
+	flex-direction: column;
+	max-width: 1040px;
+	margin: 0 auto;
+	width: 90%;
+	min-height: auto;
+	padding: 130px 0;
+	align-items: stretch;
+}
+#contact .contact-inner {
+	width: 100%;
+}
+#contact .contact-inner .section-title {
+	margin-bottom: 60px;
+}
+#contact .contact-items {
+	width: 100%;
+	display: flex;
+	border-top: 1px solid rgba(255, 255, 255, 0.14);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+#contact .contact-item {
+	flex: 1;
+	width: auto;
+	margin: 0;
+	padding: 46px 30px;
+	text-align: center;
+	display: block;
+	border-radius: 0;
+	border-right: 1px solid rgba(255, 255, 255, 0.14);
+	box-shadow: none;
+}
+#contact .contact-item:last-child {
+	border-right: none;
+}
+@media only screen and (max-width: 767px) {
+	#contact .contact-items {
+		flex-direction: column;
+	}
+	#contact .contact-item {
+		border-right: none;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+	}
+	#contact .contact-item:last-child {
+		border-bottom: none;
+	}
+}
+.contact-label {
+	display: block;
+	font-size: 1.1rem;
+	letter-spacing: 0.35rem;
+	text-transform: uppercase;
+	color: var(--brand-accent);
+	margin-bottom: 16px;
+}
+.contact-value {
+	font-size: 1.4rem;
+	line-height: 2.5rem;
+	margin: 0;
+}
+.contact-hours {
+	text-align: center;
+	margin-top: 34px;
+	font-size: 1.2rem;
+	letter-spacing: 0.2rem;
+	text-transform: uppercase;
+}
+/*End contact Section */
+
+/* Footer */
+#footer {
+	background-image: linear-gradient(120deg, #1a1513 0%, #2e2624 100%);
+}
+#footer .footer {
+	min-height: 200px;
+	flex-direction: column;
+	padding-top: 50px;
+	padding-bottom: 10px;
+}
+#footer h2 {
+	color: white;
+	font-weight: 500;
+	font-size: 1.8rem;
+	letter-spacing: 0.1rem;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+#footer .social-icon {
+	display: flex;
+	margin-bottom: 30px;
+}
+#footer .social-item {
+	height: 50px;
+	width: 50px;
+	margin: 0 5px;
+}
+#footer .social-item img {
+	filter: grayscale(1);
+	transition: 0.3s ease filter;
+}
+#footer .social-item:hover img {
+	filter: grayscale(0);
+}
+#footer p {
+	color: white;
+	font-size: 1.3rem;
+}
+/* End Footer */
+
+/* Keyframes */
+@keyframes hamburger_puls {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1.4);
+	}
+}
+/* End Keyframes */
+
+/* Media Query For Tablet */
+@media only screen and (min-width: 768px) {
+	.cta {
+		font-size: 2.5rem;
+		padding: 20px 60px;
+	}
+	h1.section-title {
+		font-size: 6rem;
+	}
+
+	/* Hero -- the mark grows with the viewport. */
+	.brand-word {
+		font-size: 6.6rem;
+		letter-spacing: 0.8rem;
+		text-indent: 0.4rem;
+	}
+	.brand-tagline {
+		font-size: 1.5rem;
+		letter-spacing: 0.78rem;
+		text-indent: 0.39rem;
+	}
+	.brand-rule {
+		width: 150px;
+	}
+	@keyframes mark_settle {
+		from { letter-spacing: 0.6rem; }
+		to   { letter-spacing: 0.8rem; }
+	}
+	/* End Hero */
+
+
+	/* contact */
+	#contact .contact-items {
+		flex-direction: row;
+	}
+	/* End contact */
+}
+/* End Media Query For Tablet */
+
+/* Media Query For Desktop */
+@media only screen and (min-width: 1200px) {
+	/* header */
+	#header .hamburger {
+		display: none;
+	}
+	#header .nav-list ul {
+		position: initial;
+		display: block;
+		height: auto;
+		width: fit-content;
+		background-color: transparent;
+	}
+	#header .nav-list ul li {
+		display: inline-block;
+	}
+	#header .nav-list ul li a {
+		font-size: 1.8rem;
+	}
+	#header .nav-list ul a:after {
+		display: none;
+	}
+	/* End header */
+}
+/* End  Media Query For Desktop */
+/* Menu page */
+.menu-page {
+	padding-top: 90px;
+}
+.add-btn {
+	display: inline-block;
+	margin-top: 8px;
+	padding: 4px 18px;
+	font-size: 1.1rem;
+	letter-spacing: 0.15rem;
+	text-transform: uppercase;
+	color: var(--brand-ink);
+	border: 1px solid var(--brand-accent);
+	transition: 0.25s ease;
+	transition-property: background-color, color;
+}
+.add-btn:hover {
+	background-color: var(--brand-accent);
+	color: #ffffff;
+}
+/* End Menu page */
+
+/* Bill Section */
+#bill {
+	background-color: #f7f4f2;
+}
+#bill .bill {
+	min-height: auto;
+	padding: 80px 20px;
+	flex-direction: column;
+}
+#bill .bill-inner {
+	width: 100%;
+	max-width: 760px;
+	margin: 0 auto;
+}
+.bill-empty {
+	text-align: center;
+	margin-top: 20px;
+}
+.bill-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 30px;
+	font-size: 1.4rem;
+}
+.bill-table th,
+.bill-table td {
+	padding: 12px 10px;
+	border-bottom: 1px solid #ddd6d2;
+	text-align: left;
+}
+.bill-table th {
+	font-size: 1.1rem;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.1rem;
+}
+.bill-table tfoot td {
+	border-bottom: none;
+	padding-top: 10px;
+}
+.bill-table tfoot .bill-grand td {
+	border-top: 1px solid var(--brand-ink);
+	font-size: 1.6rem;
+	font-weight: 700;
+}
+.bill-remove {
+	color: var(--brand-accent);
+	font-size: 2rem;
+	line-height: 1;
+}
+.bill-actions {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 24px;
+	margin-top: 10px;
+}
+.bill-actions .cta {
+	color: var(--brand-ink);
+	font-size: 1.2rem;
+	padding: 9px 22px;
+	letter-spacing: 0.22rem;
+	margin-top: 0;
+}
+.bill-actions .cta:hover {
+	color: #ffffff;
+}
+.bill-clear {
+	font-size: 1.3rem;
+	color: #6b625d;
+	text-decoration: underline;
+}
+/* End Bill Section */
+
+/* ---- Over-video theme -------------------------------------------------
+   The site now sits on a fixed video backdrop, so the content panels are
+   translucent dark with light text instead of solid white.            */
+
+body {
+	color: #f3efec;
+}
+p {
+	color: #ddd5d0;
+}
+.section-title {
+	color: #f7f4f2;
+}
+
+/* The dense panels stay as cards; About and Contact become soft bands. */
+#projects .projects,
+#bill .bill-inner {
+	background-color: rgba(18, 14, 13, 0.72);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 4px;
+	padding: 60px 40px;
+	width: 100%;
+}
+#projects .projects {
+	margin: 40px auto;
+}
+#contact {
+	background-color: rgba(12, 9, 8, 0.55);
+}
+#about {
+	background-color: rgba(12, 9, 8, 0.72);
+	border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+#about .about-inner p {
+	color: #cfc7c2;
+}
+.contact-value {
+	color: #ddd5d0;
+}
+.contact-hours {
+	color: #b9aea8;
+}
+
+/* Menu rows */
+.menu-page .item-name,
+.menu-page .item-price,
+.menu-page .item_type {
+	color: #f3efec;
+}
+.add-btn {
+	color: #f3efec;
+}
+.add-btn:hover {
+	color: #ffffff;
+}
+
+/* Bill panel */
+#bill {
+	background-color: transparent;
+}
+.bill-table th,
+.bill-table td {
+	color: #f3efec;
+	border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+.bill-table tfoot .bill-grand td {
+	border-top-color: rgba(255, 255, 255, 0.35);
+}
+.bill-empty {
+	color: #ddd5d0;
+}
+.bill-actions .cta,
+.bill-actions .cta:hover {
+	color: #ffffff;
+}
+.bill-clear {
+	color: #b9aea8;
+}
+
+/* Footer sits on the video too. */
+#footer {
+	background-image: none;
+	background-color: rgba(12, 9, 8, 0.78);
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* End over-video theme */
+
+
+/* About page -- a single line, centred */
+#about.about-page .about {
+	justify-content: center;
+	align-items: center;
+	min-height: 60vh;
+	padding: 80px 0;
+}
+#about.about-page .about-inner {
+	text-align: center;
+}
+#about .about-inner p.about-signature {
+	font-family: var(--brand-font);
+	font-size: 2.2rem;
+	letter-spacing: 0.25rem;
+	text-transform: lowercase;
+	line-height: 1.6;
+	color: #f3efec;
+	margin: 0;
+}
+/* End About page */
+
+/* Menu listing */
+.menu-group {
+	margin-bottom: 70px;
+}
+.menu-group:last-child {
+	margin-bottom: 0;
+}
+.menu-group-title {
+	font-size: 1.5rem;
+	font-weight: 400;
+	letter-spacing: 0.35rem;
+	text-transform: uppercase;
+	color: var(--brand-accent);
+	padding-bottom: 14px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+.menu-items {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	column-gap: 48px;
+}
+.menu-item {
+	padding: 20px 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.menu-item-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 16px;
+}
+.menu-item .item-name {
+	font-size: 1.5rem;
+	font-weight: 400;
+	color: #f7f4f2;
+}
+.menu-item .item-price {
+	font-size: 1.4rem;
+	color: #ddd5d0;
+	white-space: nowrap;
+}
+.menu-item-foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-top: 8px;
+}
+.menu-item .item_type {
+	font-size: 1.2rem;
+	font-style: italic;
+	color: #a89e98;
+}
+/* End Menu listing */
+
+/* Sticky footer: on short pages the footer was floating mid-screen with the
+   video showing beneath it. The fixed backdrop, loader and header are out of
+   flow, so the in-flow sections and the footer are the only flex children. */
+body.site-body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+body.site-body > #footer {
+	margin-top: auto;
+}
+/* End sticky footer */

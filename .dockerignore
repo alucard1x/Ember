@@ -1,0 +1,8 @@
+.git
+.gitignore
+.DS_Store
+**/.DS_Store
+Thumbs.db
+docs
+setup_completed.flag
+LICENSE

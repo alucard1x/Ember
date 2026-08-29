@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: ember-restaurant
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      # Fill these in from your MySQL provider's connection details.
+      # Mark them as secret in the Render dashboard rather than committing values.
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: APP_URL
+        sync: false
