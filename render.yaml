@@ -6,8 +6,7 @@ services:
     dockerfilePath: ./Dockerfile
     healthCheckPath: /
     envVars:
-      # Fill these in from your MySQL provider's connection details.
-      # Mark them as secret in the Render dashboard rather than committing values.
+      
       - key: DB_HOST
         sync: false
       - key: DB_PORT
