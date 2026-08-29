@@ -27,12 +27,70 @@
         opacity: 1;
         pointer-events: auto;
     }
-    /* The mark itself is styled in css/style.css, so the curtain and the hero
-       cannot drift apart. Only the waiting motion lives here: a single ember
-       travelling along the rule the hero is about to inherit. */
+    /* The curtain must be able to draw the mark on its own.
+       css/style.css is only linked by pages that include components/header.php;
+       the reservation, login and register pages do not, so the wordmark used to
+       flash as unstyled body text -- and the sweep below, with nothing
+       positioned to anchor to, escaped to the viewport as a red slab.
+       Everything the curtain needs is therefore repeated here, in px rather
+       than rem so it does not depend on style.css setting html { 10px }.
+       The values match .brand-word / .brand-rule / .brand-tagline exactly, so
+       on pages that do load style.css nothing moves at the handover. */
+    .brand-mark--loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .brand-mark--loader .brand-word {
+        display: block;
+        font-family: Copperplate, 'Copperplate Gothic Light', 'Optima',
+                     'Palatino Linotype', Palatino, Georgia, serif;
+        font-size: 44px;
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: 6px;
+        text-indent: 3px;
+        text-transform: none;
+        color: #f3efec;
+    }
     .brand-mark--loader .brand-rule {
+        display: block;
+        position: relative;
+        width: 120px;
+        height: 1px;
+        margin-top: 28px;
+        background-color: rgba(255, 255, 255, 0.12);
         overflow: hidden;
     }
+    .brand-mark--loader .brand-tagline {
+        display: block;
+        margin-top: 22px;
+        font-size: 13px;
+        font-weight: 300;
+        letter-spacing: 6.2px;
+        text-indent: 3.1px;
+        text-transform: uppercase;
+        color: #cfc7c2;
+        opacity: 0;
+    }
+    @media only screen and (min-width: 768px) {
+        .brand-mark--loader .brand-word {
+            font-size: 66px;
+            letter-spacing: 8px;
+            text-indent: 4px;
+        }
+        .brand-mark--loader .brand-rule {
+            width: 150px;
+        }
+        .brand-mark--loader .brand-tagline {
+            font-size: 15px;
+            letter-spacing: 7.8px;
+            text-indent: 3.9px;
+        }
+    }
+    /* The waiting motion: a single ember travelling along the rule the hero is
+       about to inherit. */
     .brand-mark--loader .brand-rule::after {
         content: '';
         position: absolute;
