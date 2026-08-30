@@ -4,6 +4,8 @@ session_start(); // Ensure session is started
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
+    <meta name="viewport" content="width=1280">
     <title>Check Staff Member Reservation Validity</title>
     <!-- Add Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">

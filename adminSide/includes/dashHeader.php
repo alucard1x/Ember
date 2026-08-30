@@ -4,7 +4,8 @@
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
+        <meta name="viewport" content="width=1280">
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>Dashboard &mdash; Ember Staff Panel</title>

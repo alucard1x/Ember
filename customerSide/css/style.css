@@ -843,3 +843,15 @@ body.site-body > #footer {
 	margin-top: auto;
 }
 /* End sticky footer */
+
+/* ── Desktop parity on touch devices ──────────────────────────────────────
+   The viewport meta is pinned to width=1280 site-wide, so phones lay out
+   exactly like desktop. This block only neutralises iOS text auto-inflation,
+   which would otherwise resize copy relative to the desktop rendering.
+   (pointer: coarse) never matches a desktop mouse, so desktop is untouched. */
+@media (pointer: coarse) {
+	html {
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
+	}
+}

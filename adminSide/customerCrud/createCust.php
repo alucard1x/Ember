@@ -47,6 +47,8 @@ $next_member_id = getNextAvailableMemberID($link);
 $next_account_id = getNextAvailableAccountID($link);
 ?>
 <head>
+    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
+    <meta name="viewport" content="width=1280">
     <meta charset="UTF-8">
     <title>Create New Membership</title>
     <style>

@@ -25,7 +25,8 @@ $sides = mysqli_fetch_all($resultsides, MYSQLI_ASSOC);
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
+    <meta name="viewport" content="width=1280">
     <!-- ?v= is the file's last-modified time, so a restyle is never served from cache -->
     <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
