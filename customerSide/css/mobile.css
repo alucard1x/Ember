@@ -37,6 +37,55 @@
 		background-attachment: scroll;
 	}
 
+	/* The hamburger ----------------------------------------------------
+	   It came with a second ring pulsing outward on a 1s infinite loop, on
+	   top of a 3px solid white border -- a heavy, blinking target on a page
+	   built entirely out of hairlines and restraint. The pulse is gone and
+	   the button is redrawn to the same weight as the rest of the site: one
+	   1px ring, 1px bars, and the accent colour to mark it open. */
+	#header .hamburger {
+		height: 46px;
+		width: 46px;
+		/* style.css draws it at 60px and scales it to 0.8; at 1px borders a
+		   scale factor would render the ring at a fraction of a pixel. */
+		transform: none;
+		border: 1px solid rgba(255, 255, 255, 0.5);
+		margin-right: 6px;
+		transition: border-color 0.3s ease;
+	}
+	#header .hamburger::after {
+		/* The pulsing ring. */
+		content: none;
+		animation: none;
+		display: none;
+	}
+	#header .hamburger .bar {
+		width: 19px;
+		height: 1px;
+		background-color: rgba(255, 255, 255, 0.88);
+		transition: background-color 0.3s ease;
+	}
+	#header .hamburger .bar::before,
+	#header .hamburger .bar::after {
+		background-color: rgba(255, 255, 255, 0.88);
+		transition: top 0.3s ease, bottom 0.3s ease, background-color 0.3s ease;
+	}
+	#header .hamburger .bar::after {
+		top: 6px;
+	}
+	#header .hamburger .bar::before {
+		bottom: 6px;
+	}
+	/* Open: the three rules close to one and the ring picks up the ember. */
+	#header .hamburger.active {
+		border-color: var(--brand-accent, #b1462f);
+	}
+	#header .hamburger.active .bar,
+	#header .hamburger.active .bar::before,
+	#header .hamburger.active .bar::after {
+		background-color: var(--brand-accent, #b1462f);
+	}
+
 	/* The slide-in menu ------------------------------------------------
 	   It was a flat grey slab (#1f1e1e) that belonged to no part of the
 	   site. This is the same warm near-black the header and footer use, so
