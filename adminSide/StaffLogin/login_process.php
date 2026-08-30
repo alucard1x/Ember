@@ -86,8 +86,7 @@ $link->close();
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
-    <meta name="viewport" content="width=1280">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet">
     <style>
         /* Your custom CSS styles for the success message card here */

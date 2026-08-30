@@ -38,8 +38,7 @@ $conn->close();
 <html>
 <head>
     <meta charset="UTF-8">
-    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
-    <meta name="viewport" content="width=1280">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile &mdash; Ember Dining &amp; Bar</title>
     <style>
         body {

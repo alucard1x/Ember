@@ -30,7 +30,8 @@
     </div>
   </section>
   <!-- End Footer -->
-  <script src="../js/app.js"></script>
+  <!-- ?v= is the file's last-modified time, so a change is never served from cache -->
+  <script src="../js/app.js?v=<?= @filemtime(__DIR__ . '/../js/app.js') ?>"></script>
    <style type="text/css">
        
        .navbar-container {

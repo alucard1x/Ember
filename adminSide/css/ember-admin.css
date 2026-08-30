@@ -11,11 +11,14 @@
    ===================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap');
 
 :root {
-    /* Same values the customer site uses in customerSide/css/style.css */
+    /* Same values the customer site uses in customerSide/css/style.css --
+       including Cinzel, the downloaded face that catches Android, where none
+       of the Copperplate/Optima/Palatino system fonts exist. */
     --brand-font: Copperplate, 'Copperplate Gothic Light', 'Optima',
-                  'Palatino Linotype', Palatino, Georgia, serif;
+                  'Palatino Linotype', Palatino, 'Cinzel', Georgia, serif;
     --brand-accent: #b1462f;
     --brand-accent-soft: rgba(177, 70, 47, 0.16);
     --brand-ink: #14100f;

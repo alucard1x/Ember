@@ -21,7 +21,9 @@ $brandHome = $brandHome ?? '../home/home.php';
         top: 26px;
         left: 40px;
         z-index: 900;
-        font-family: Copperplate, Copperplate Gothic Light, Optima, Palatino Linotype, Georgia, serif;
+        /* Cinzel sits after the installed faces as the Android fallback --
+           see --brand-font in css/style.css for the full reasoning. */
+        font-family: Copperplate, 'Copperplate Gothic Light', Optima, 'Palatino Linotype', 'Cinzel', Georgia, serif;
         font-size: 2rem;
         letter-spacing: 0.3rem;
         text-transform: uppercase;

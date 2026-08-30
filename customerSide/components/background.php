@@ -15,6 +15,10 @@
 $bgAssets = $bgAssets ?? '../image';
 $bgVideoFile = __DIR__ . '/../image/background.mp4';
 $bgHasVideo  = file_exists($bgVideoFile);
+
+// customerSide/css, worked out from $bgAssets so it resolves from whichever
+// folder included this file -- including adminSide/StaffLogin.
+$bgCssDir = rtrim(dirname($bgAssets), '/') . '/css';
 ?>
 <div class="site-bg">
 <?php if ($bgHasVideo) { ?>
@@ -179,6 +183,32 @@ $bgHasVideo  = file_exists($bgVideoFile);
         color: #ffffff;
     }
 </style>
+
+<?php
+/*
+ * Cinzel: the wordmark's fallback face.
+ *
+ * The Ember mark asks for Copperplate first and only reaches Cinzel on a
+ * device that has none of the Copperplate/Optima/Palatino system fonts --
+ * in practice, Android. It is linked here rather than in css/style.css
+ * because login, register, profile and the reservation page draw the mark
+ * (via brandLink.php and pageTransition.php) without linking style.css at
+ * all, and those were the pages where it fell through to a plain serif.
+ */
+?>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap">
+
+<?php
+/*
+ * The mobile layer. Loaded last on purpose: every rule in it is wrapped in a
+ * max-width media query, so it can only ever act below the desktop
+ * breakpoint, and being last is what lets it override the per-page styles
+ * above without needing !important on everything.
+ */
+?>
+<link rel="stylesheet" href="<?= $bgCssDir ?>/mobile.css?v=<?= @filemtime(__DIR__ . '/../css/mobile.css') ?>">
 
 <?php if ($bgHasVideo) { ?>
 <script>

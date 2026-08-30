@@ -25,8 +25,7 @@ $next_table_id = getNextAvailableTableID($conn);
 
 ?>
 <head>
-    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
-    <meta name="viewport" content="width=1280">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <title>Create New Table</title>
     <style>

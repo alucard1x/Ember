@@ -1,10 +1,22 @@
 @import 'https://fonts.googleapis.com/css?family=Montserrat:300, 400, 700&display=swap';
 @import 'https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap';
+/* Cinzel is the wordmark's safety net -- see --brand-font below. */
+@import 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap';
 
 :root {
 	/* Brand wordmark: Copperplate where available, with graceful serif fallbacks
-	   so the Ember mark still reads as engraved lettering on every platform. */
-	--brand-font: Copperplate, 'Copperplate Gothic Light', 'Optima', 'Palatino Linotype', Palatino, Georgia, serif;
+	   so the Ember mark still reads as engraved lettering on every platform.
+
+	   Copperplate, Copperplate Gothic Light, Optima and Palatino are all
+	   *system* faces -- they ship with macOS, iOS and Windows but NOT with
+	   Android, which is why the mark used to drop all the way through to a
+	   generic serif on an Android phone and stop looking like Ember at all.
+	   Cinzel is a downloaded webfont in the same engraved-Roman-capital
+	   register, sitting after every installed face and before the generic
+	   fallbacks: any device that has Copperplate still uses Copperplate, so
+	   this cannot change how the mark renders on a desktop that already had
+	   it, and any device that does not now gets Cinzel instead of Times. */
+	--brand-font: Copperplate, 'Copperplate Gothic Light', 'Optima', 'Palatino Linotype', Palatino, 'Cinzel', Georgia, serif;
 	--brand-accent: #b1462f;
 	--brand-ink: #14100f;
 }
@@ -843,15 +855,3 @@ body.site-body > #footer {
 	margin-top: auto;
 }
 /* End sticky footer */
-
-/* ── Desktop parity on touch devices ──────────────────────────────────────
-   The viewport meta is pinned to width=1280 site-wide, so phones lay out
-   exactly like desktop. This block only neutralises iOS text auto-inflation,
-   which would otherwise resize copy relative to the desktop rendering.
-   (pointer: coarse) never matches a desktop mouse, so desktop is untouched. */
-@media (pointer: coarse) {
-	html {
-		-webkit-text-size-adjust: 100%;
-		text-size-adjust: 100%;
-	}
-}

@@ -130,8 +130,7 @@ if ($stmt_accounts = mysqli_prepare($link, $sql_accounts)) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
-    <meta name="viewport" content="width=1280">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <title>Sign Up &mdash; Ember Dining &amp; Bar</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -203,22 +202,6 @@ if ($stmt_accounts = mysqli_prepare($link, $sql_accounts)) {
             }
         }
         
-    
-/* ── Desktop parity on touch devices ──────────────────────────────────────
-   Guarded by (pointer: coarse), which never matches a mouse-driven desktop
-   browser, so nothing here can alter the desktop rendering. */
-@media (pointer: coarse) {
-    html {
-        -webkit-text-size-adjust: 100%;   /* stop iOS inflating text */
-        text-size-adjust: 100%;
-    }
-    body {
-        /* iOS does not honour background-attachment:fixed; it mis-scales the
-           image. scroll reproduces the desktop appearance. */
-        background-attachment: scroll;
-    }
-}
-
     </style>
 </head>
 <body class="has-site-panel">

@@ -27,8 +27,7 @@ if(isset($_POST['submit'])){
 }
 ?>
 <head>
-    <!-- Desktop-parity viewport: phones render the full 1280px desktop layout, scaled to fit. -->
-    <meta name="viewport" content="width=1280">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <title>Create New Item</title>
     <style>

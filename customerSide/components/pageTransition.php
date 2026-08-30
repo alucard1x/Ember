@@ -44,8 +44,10 @@
     }
     .brand-mark--loader .brand-word {
         display: block;
+        /* Cinzel sits after the installed faces as the Android fallback --
+           see --brand-font in css/style.css for the full reasoning. */
         font-family: Copperplate, 'Copperplate Gothic Light', 'Optima',
-                     'Palatino Linotype', Palatino, Georgia, serif;
+                     'Palatino Linotype', Palatino, 'Cinzel', Georgia, serif;
         font-size: 44px;
         font-weight: 400;
         line-height: 1.05;
