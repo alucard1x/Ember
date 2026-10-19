@@ -529,7 +529,7 @@ foreach ($reviews as $r) { ?>
         <p class="oz-contact__legal">
             &copy; 26MCA0009<br>
             DBMS Project
-            <span>Reviews on this page are samples. Some dish photos: Unsplash; pasta photo: jillhough.com.</span>
+            <span>Reviews on this page are samples.</span>
         </p>
     </div>
 </footer>

@@ -80,8 +80,6 @@ Put the folder in XAMPP's `htdocs`, import `database/restaurantDB.sql` in phpMyA
 
 ---
 
-## Credits
+## License
 
-Dish and restaurant photography from Unsplash; pasta photo from jillhough.com. Reviews on the homepage are samples.
-
-Licensed under the Apache License 2.0 — see [LICENSE](LICENSE).
+Reviews on the homepage are samples. Licensed under the Apache License 2.0 — see [LICENSE](LICENSE).
