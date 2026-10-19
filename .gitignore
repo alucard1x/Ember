@@ -25,3 +25,6 @@ _tools/
 
 # Login details for the demo accounts - kept on your computer only
 docs/ember-login-credentials.pdf
+
+# Course documents (reports, slides, diagrams) - kept on your computer, not in the repo
+docs/
