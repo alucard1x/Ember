@@ -1,4 +1,6 @@
 <?php
+// deleteReservation.php - deletes a reservation from the Reservations table
+require_once __DIR__ . '/../posBackend/checkIfLoggedIn.php';   // staff only: if not logged in, go to the staff login page
 // Include config file
 require_once "../config.php";
 

@@ -1,4 +1,6 @@
 <?php
+// generate_report.php - makes the PDF sales report (FPDF)
+require_once __DIR__ . '/../posBackend/checkIfLoggedIn.php';   // staff only: if not logged in, go to the staff login page
 require('../posBackend/fpdf186/fpdf.php'); // Include the FPDF library
 // Include your database configuration
 require_once '../config.php';
@@ -164,7 +166,6 @@ $totalRevenueTodayRow = mysqli_fetch_assoc($totalRevenueTodayResult);
 $totalRevenueToday = $totalRevenueTodayRow['total_revenue'];
 
 // Comment out or remove the debugging echo statement
-// echo "Total Revenue Today: " . $totalRevenueToday;
 
 // Daily Report
 $pdf->ChapterTitle('Daily Report');

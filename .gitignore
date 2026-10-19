@@ -18,3 +18,10 @@ setup_completed.flag
 # Editor
 .vscode/
 .idea/
+
+# Local helper scripts and leftovers (never part of the site)
+_tools/
+.fuse_hidden*
+
+# Login details for the demo accounts - kept on your computer only
+docs/ember-login-credentials.pdf

@@ -1,32 +1,22 @@
-/* =====================================================================
-   Ember — staff panel theme
-   ---------------------------------------------------------------------
-   A skin layered over SB Admin + Bootstrap so the staff panel reads as
-   the same restaurant as the customer site: the ember palette, Montserrat
-   for text, Copperplate for the wordmark, square corners, hairline rules
-   and uppercase letter-spaced labels instead of the stock blue chrome.
-
-   Loaded AFTER css/styles.css in includes/dashHeader.php, so everything
-   here is an override. Nothing in styles.css was edited.
-   ===================================================================== */
+/* ember-admin.css - our dark Ember design for the staff panel.
+   It is loaded after styles.css (the SB Admin template) and changes its colours and fonts.
+   styles.css itself is not edited. */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap');
 
 :root {
-    /* Same values the customer site uses in customerSide/css/style.css --
-       including Cinzel, the downloaded face that catches Android, where none
-       of the Copperplate/Optima/Palatino system fonts exist. */
+    /* same fonts and colours as the customer site (style.css) */
     --brand-font: Copperplate, 'Copperplate Gothic Light', 'Optima',
                   'Palatino Linotype', Palatino, 'Cinzel', Georgia, serif;
     --brand-accent: #b1462f;
     --brand-accent-soft: rgba(177, 70, 47, 0.16);
     --brand-ink: #14100f;
 
-    /* Surfaces, darkest to lightest */
-    --ink-900: #0f0c0b;   /* page ground   */
-    --ink-800: #14100f;   /* chrome        */
-    --ink-700: #191413;   /* raised panels */
+    /* backgrounds, darkest to lightest */
+    --ink-900: #0f0c0b;   /* page background */
+    --ink-800: #14100f;   /* top bar */
+    --ink-700: #191413;   /* cards */
     --ink-600: #221b19;   /* inputs, hover */
 
     --line: rgba(255, 255, 255, 0.10);
@@ -36,13 +26,13 @@
     --text-dim: #b9aea8;
     --text-faint: #8b807a;
 
-    /* Table / order states, tuned to sit beside the ember accent */
+    /* colours for free / busy / reserved tables */
     --state-free: #17594a;
     --state-busy: #a8102f;
     --state-held: #c9a227;
 }
 
-/* ---------- Ground ---------------------------------------------- */
+/* ===== PAGE ===== */
 
 html,
 body,
@@ -60,14 +50,14 @@ main {
     background-color: transparent;
 }
 
-/* The stock template puts a white card behind page content. */
+/* the template has a white box behind the content, remove it */
 .container,
 .container-fluid,
 .wrapper {
     background-color: transparent;
 }
 
-/* ---------- Headings -------------------------------------------- */
+/* ===== HEADINGS ===== */
 
 h1, h2, h3, h4, h5, h6 {
     color: var(--text);
@@ -82,7 +72,7 @@ h3 { font-size: 1.4rem; }
 h4 { font-size: 1.2rem; }
 h5, h6 { font-size: 1rem; letter-spacing: 0.18rem; }
 
-/* The hairline under a page title, exactly as on the customer site. */
+/* thin line under the page title */
 .wrapper h2,
 .container-fluid > .row h2,
 h2.pull-left {
@@ -103,7 +93,7 @@ h2.pull-left::after {
     background-color: var(--brand-accent);
 }
 
-/* A few pages centre their title inline; centre its rule to match. */
+/* the line is centred when the title is centred */
 .wrapper h2[style*="center"]::after,
 .container-fluid > .row h2[style*="center"]::after,
 h2[style*="center"]::after,
@@ -130,21 +120,21 @@ hr {
     border-top: 1px solid var(--line);
 }
 
-/* ---------- Top bar --------------------------------------------- */
+/* ===== TOP BAR ===== */
 
 .sb-topnav {
-    /* Height stays at the template's 56px — the sidenav and content column
-       are both offset by that number. */
+    /* keep the height at 56px, the template uses this number for the layout */
     background-color: rgba(15, 12, 11, 0.96) !important;
     border-bottom: 1px solid var(--line);
 }
 
 .sb-topnav .navbar-brand {
     font-family: var(--brand-font);
-    font-size: 1.15rem;
+    font-size: 1.4rem;
     font-weight: 400;
-    letter-spacing: 0.32rem;
-    text-transform: uppercase;
+    /* same logo as the homepage: "Ember" (big E, small capitals), not "EMBER" */
+    letter-spacing: 0.13em;
+    text-transform: none;
     color: var(--text) !important;
     transition: color 0.3s ease;
 }
@@ -152,8 +142,7 @@ hr {
     color: var(--brand-accent) !important;
 }
 
-/* The way back to the customer site: the Ember wordmark, set in the same
-   engraved face the site header uses. */
+/* "Ember" link back to the customer website */
 .ember-site-link {
     display: flex;
     align-items: center;
@@ -173,9 +162,9 @@ hr {
 }
 .ember-site-mark {
     font-family: var(--brand-font);
-    font-size: 0.95rem;
-    letter-spacing: 0.26rem;
-    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 0.13em;
+    text-transform: none;
     color: var(--text);
 }
 .ember-site-link:hover .ember-site-mark {
@@ -197,7 +186,7 @@ hr {
     color: var(--brand-accent);
 }
 
-/* ---------- Side navigation -------------------------------------- */
+/* ===== LEFT MENU ===== */
 
 .sb-sidenav.sb-sidenav-dark {
     background-color: var(--ink-800);
@@ -255,7 +244,7 @@ hr {
     margin-bottom: 6px;
 }
 
-/* ---------- Panels and cards ------------------------------------- */
+/* ===== CARDS ===== */
 
 .card {
     background-color: var(--ink-700);
@@ -278,10 +267,9 @@ hr {
     border-top: 1px solid var(--line);
 }
 
-/* ---------- Tables ------------------------------------------------ */
+/* ===== TABLES ===== */
 
-/* Wide tables (Reservations, Bills, Accounts) scroll inside their own box
-   instead of pushing the page sideways. */
+/* wide tables scroll inside their own box */
 .table-scroll {
     width: 100%;
     overflow-x: auto;
@@ -302,8 +290,7 @@ hr {
     font-weight: 300;
     margin-bottom: 0;
 
-    /* Bootstrap drives striping and hover through these variables and its own
-       dark ink; left alone, every other row renders near-black on near-black. */
+    /* text colours for the table rows (Bootstrap 5 uses these variables) */
     --bs-table-color: #f3efec;
     --bs-table-bg: transparent;
     --bs-table-striped-color: #f3efec;
@@ -314,7 +301,7 @@ hr {
     --bs-table-active-bg: rgba(177, 70, 47, 0.16);
     --bs-table-border-color: rgba(255, 255, 255, 0.10);
 }
-/* Bootstrap 4 has no such variables — it sets the colour on the row itself. */
+/* Bootstrap 4 sets the colour on the row itself */
 .table tbody tr,
 .table tbody td,
 .table tbody th,
@@ -365,7 +352,7 @@ hr {
     color: var(--brand-accent) !important;
 }
 
-/* ---------- Forms -------------------------------------------------- */
+/* ===== FORMS ===== */
 
 .form-label,
 label {
@@ -397,7 +384,7 @@ input[type="password"].form-control {
     box-shadow: none;
     transition: border-color 0.25s ease, background-color 0.25s ease;
 }
-/* Some forms use bare inputs with no .form-control; give them the same field. */
+/* inputs without .form-control get the same look */
 main input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
 main select,
 main textarea {
@@ -433,10 +420,10 @@ main textarea:focus {
     background-color: rgba(255, 255, 255, 0.04);
     color: var(--text-faint);
 }
-/* Native dropdown lists paint on the OS surface, so keep them legible. */
+/* dropdown options: dark text on light background so you can read them */
 option { color: var(--brand-ink); background-color: #ffffff; }
 
-/* Date/time pickers ship a black glyph that vanishes on a dark field. */
+/* make the calendar icon white */
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator {
     filter: invert(1) opacity(0.55);
@@ -447,13 +434,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .form-control.is-invalid { border-color: #e0715c; }
 .form-control.is-valid { border-color: var(--state-free); }
 
-/* ---------- Buttons ------------------------------------------------ */
+/* ===== BUTTONS ===== */
 
 .btn {
     border-radius: 0;
     white-space: nowrap;
-    /* Some panels drop a button straight into a flex row, which stretched it
-       across the whole column. */
+    /* don't stretch buttons to full width */
     align-self: flex-start;
     width: auto;
     font-size: 0.72rem;
@@ -466,7 +452,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 .btn:focus, .btn:active:focus { box-shadow: none; }
 
-/* One primary treatment — the outlined ember button from the site. */
+/* main button: red outline like on the customer site */
 .btn-dark,
 .btn-primary,
 .btn-outline-dark,
@@ -487,7 +473,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     color: #ffffff;
 }
 
-/* Quiet secondary — "Show All", "Cancel", "Back". */
+/* second button: "Show All", "Cancel", "Back" */
 .btn-light,
 .btn-outline-secondary {
     background-color: transparent;
@@ -536,7 +522,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .btn-link { color: var(--brand-accent); letter-spacing: 0.1rem; }
 
-/* ---------- Alerts -------------------------------------------------- */
+/* ===== ALERTS (messages) ===== */
 
 .alert {
     background-color: var(--ink-700);
@@ -554,7 +540,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .alert-info    { border-left-color: var(--brand-accent); color: var(--text-dim); }
 .alert em { font-style: normal; }
 
-/* ---------- Table-status board (POS) --------------------------------- */
+/* ===== TABLE BOARD on the POS page ===== */
 
 .table-board {
     display: grid;
@@ -610,8 +596,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     text-transform: uppercase;
 }
 
-/* State is carried by the top rule and a tint, not a slab of colour —
-   ten saturated blocks fight the rest of the panel. */
+/* the colour of a table is shown by its top line and a light tint */
 .table-tile.is-free   { border-top-color: var(--state-free); }
 .table-tile.is-busy   { border-top-color: var(--state-busy); }
 .table-tile.is-held   { border-top-color: var(--state-held); }
@@ -626,7 +611,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .table-tile.is-busy:hover { border-color: rgba(168, 16, 47, 0.7); }
 .table-tile.is-held:hover { border-color: rgba(201, 162, 39, 0.7); }
 
-/* Legend */
+/* colour explanation under the board */
 .board-legend {
     display: flex;
     flex-wrap: wrap;
@@ -655,17 +640,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .legend-swatch.is-busy { background-color: var(--state-busy); }
 .legend-swatch.is-held { background-color: var(--state-held); }
 
-/* ---------- Page furniture ------------------------------------------ */
+/* ===== PAGE LAYOUT ===== */
 
-/* The sidebar is position:fixed and the panels sit beside it as flex children
-   of #layoutSidenav, so each page hard-coded .wrapper{width:50%;
-   padding-left:200px} to clear it — with a different number per page. Clear it
-   once here instead, and let the content take a readable measure. */
-/* dashHeader.php now opens #layoutSidenav_content properly, so the template
-   itself offsets the content past the fixed sidebar and top bar. Each page
-   still carries its old compensation — .wrapper{width:1300px;
-   padding-left:200px} and friends — which would push it off to the right;
-   overridden here once instead of edited in twenty files. */
+/* old pages had their own widths and paddings to get past the left menu. */
+/* the template already moves the content past the menu, so these are reset here */
 .wrapper {
     width: auto !important;
     max-width: 1180px;
@@ -674,18 +652,17 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     padding-top: 0 !important;
 }
 
-/* One consistent gutter for the content column, whatever the page wraps in. */
+/* same space around the content on every page */
 #layoutSidenav_content > main {
     padding: 34px 44px 64px;
-    /* Reservations and Bills are wider than the column; let them scroll here
-       rather than spilling under the viewport edge. */
+    /* wide pages scroll sideways here */
     overflow-x: auto;
 }
 @media (max-width: 991px) {
     #layoutSidenav_content > main { padding: 24px 20px 48px; }
 }
 
-/* More sidebar compensation baked into the panels' own markup. */
+/* more old padding for the left menu, not needed any more */
 .pl-600, .pl-500 { padding-left: 0 !important; }
 main > .container,
 main > .container-fluid,
@@ -700,10 +677,10 @@ main .wrapper > .container-fluid.pt-5 {
     padding-top: 0 !important;
 }
 
-/* ---------- Footer --------------------------------------------------- */
+/* ===== FOOTER ===== */
 
 .ember-footer {
-    margin-top: auto;   /* #layoutSidenav_content is a flex column */
+    margin-top: auto;   /* the content column is a flex column */
     padding: 30px 44px 34px;
     border-top: 1px solid var(--line);
     background-color: rgba(12, 9, 8, 0.6);
@@ -737,8 +714,8 @@ main .wrapper > .container-fluid.pt-5 {
     color: #ffffff;
 }
 
-/* Charts on the report pages sit on dark now. The chart holders carry inline
-   width:113% from the original layout, which overflowed the column. */
+/* ===== CHARTS (report pages) ===== */
+/* charts must not be wider than the column */
 canvas { max-width: 100%; }
 .chart-holder {
     width: 100%;
@@ -762,7 +739,7 @@ canvas { max-width: 100%; }
     color: #ffffff;
 }
 
-/* Scrollbars, so the dark panels don't get a bright gutter. */
+/* dark scrollbars */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--ink-900); }
 ::-webkit-scrollbar-thumb {
@@ -770,3 +747,45 @@ canvas { max-width: 100%; }
     border: 2px solid var(--ink-900);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--brand-accent); }
+
+/* ===== SIMPLE STAFF PAGES (one look for every list page) ===== */
+
+/* title + one-line help + main button */
+.pg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.2rem; }
+.pg-sub { color: var(--text-dim); margin: 0.3rem 0 0; font-size: 0.85rem; }
+
+/* the "Add ..." form that opens above the list */
+.pg-add { background: var(--ink-700); border: 1px solid var(--line); padding: 1.2rem 1.3rem; margin-bottom: 1.4rem; }
+.pg-add h3 { font-size: 1.05rem; margin: 0 0 0.9rem; }
+.pg-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.9rem 1rem; }
+.pg-fields label, .pg-label { display: block; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.3rem; }
+.pg-add .btn { margin-top: 1rem; }
+
+/* search box + quick filter buttons above the list */
+.pg-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+.pg-search { max-width: 22rem; }
+.pg-chip { border: 1px solid var(--line-strong); padding: 0.45em 0.9em; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; }
+.pg-chip:hover { color: var(--text); border-color: var(--brand-accent); }
+.pg-chip.is-on { color: var(--text); border-color: var(--brand-accent); background: rgba(177, 70, 47, 0.2); }
+.pg-count { margin-left: auto; font-size: 0.8rem; color: var(--text-faint); }
+
+/* small messages after saving */
+.pg-msg { border: 1px solid #17594a; background: rgba(23, 89, 74, 0.2); color: #b7e3d4; padding: 0.7rem 1rem; margin-bottom: 1rem; }
+.pg-msg.is-error { border-color: #a8102f; background: rgba(168, 16, 47, 0.18); color: #f0b3a8; }
+
+/* status labels inside tables */
+.pg-tag { display: inline-block; padding: 0.2em 0.6em; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--line-strong); color: var(--text-dim); white-space: nowrap; }
+.pg-tag.is-green { border-color: #17594a; color: #6fbfa8; }
+.pg-tag.is-red { border-color: #a8102f; color: #e0715c; }
+.pg-tag.is-gold { border-color: #c9a227; color: #e2cd8a; }
+.pg-actions { white-space: nowrap; }
+.pg-actions a { margin-right: 0.8rem; font-size: 0.78rem; }
+.pg-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* tabs at the top of pages that share one menu link (e.g. People: Members / Staff / ...) */
+.ember-tabs { display: flex; flex-wrap: wrap; gap: 0.3rem 1.6rem; max-width: 1180px; border-bottom: 1px solid var(--line); margin-bottom: 1.8rem; }
+.ember-tab { padding: 0.6rem 0; margin-bottom: -1px; border-bottom: 2px solid transparent; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; }
+.ember-tab:hover { color: var(--text); text-decoration: none; }
+.ember-tab.is-on { color: var(--text); border-bottom-color: var(--brand-accent); }
+@media print { .ember-tabs { display: none !important; } }
+

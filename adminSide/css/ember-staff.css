@@ -1,0 +1,322 @@
+/* ember-staff.css - gives the staff panel the same look as the new customer homepage
+   (customerSide/css/oryzo.css): Hanken Grotesk, bold uppercase titles, DM Mono labels,
+   pill buttons, square glass panels, label-and-line fields and the ember orange.
+   It is loaded after ember-admin.css and only changes how things look, never what they do.
+   styles.css (the SB Admin template) is not edited. */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300..800&family=DM+Mono:wght@400;500&display=swap');
+
+/* ===== 1. TOKENS (same values as the homepage) ===== */
+:root {
+    --ink:       #14100f;
+    --void:      #0b0908;
+    --char:      #2a1c17;
+    --bone:      #f3efec;
+    --ember:     #b1462f;
+    --ember-lit: #e0784f;
+
+    --sans: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'DM Mono', ui-monospace, monospace;
+    --logo: Copperplate, 'Copperplate Gothic Light', 'Cinzel', Georgia, serif;
+
+    /* the old names used all over the staff pages now point at the new look */
+    --brand-font: var(--sans);                  /* big numbers, names on cards */
+    --brand-accent: var(--ember);
+    --brand-accent-soft: rgba(177, 70, 47, 0.18);
+    --ink-900: var(--void);
+    --ink-800: var(--ink);
+    --ink-700: rgba(243, 239, 236, 0.045);      /* panels: a soft see-through layer */
+    --ink-600: rgba(243, 239, 236, 0.08);
+    --line: rgba(243, 239, 236, 0.12);
+    --line-strong: rgba(243, 239, 236, 0.22);
+    --text: var(--bone);
+    --text-dim: #b9aea8;
+    --text-faint: #8f847e;
+
+    --radius: 0;          /* square panels, like the homepage cards; only buttons, tabs and tags are round */
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== 2. PAGE AND TEXT ===== */
+html, body, body.sb-nav-fixed {
+    font-family: var(--sans);
+    font-weight: 400;
+    letter-spacing: 0;
+}
+p, label, .small, small, td, li { letter-spacing: 0; }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+}
+/* page titles: big and bold like the homepage section titles */
+.pg-head h2, .wrapper h2, .container-fluid > .row h2, h2.pull-left {
+    font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+    line-height: 0.95;
+    padding-bottom: 0;
+}
+.wrapper h2::after, .container-fluid > .row h2::after, h2.pull-left::after { display: none; }
+h3 { font-size: 1.05rem; }
+.pg-sub { font-size: 0.92rem; margin-top: 0.6rem; max-width: 60ch; }
+
+/* small labels use the mono font, like "[ 4.8/5 ]" on the homepage */
+.pg-label, .pg-fields label, .pg-count, label,
+.table thead th, .table-tile .tile-label, .legend-item,
+.sb-sidenav-dark .sb-sidenav-footer .small, .ember-footer .footer-project-tag {
+    font-family: var(--mono);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+
+a { transition: color 0.25s; }
+a:hover { color: var(--ember-lit); }
+
+/* ===== 3. TOP BAR ===== */
+.sb-topnav {
+    background: linear-gradient(rgba(11, 9, 8, 0.96), rgba(20, 16, 15, 0.92)) !important;
+    border-bottom: 1px solid var(--line);
+}
+.sb-topnav .navbar-brand, .ember-site-mark { font-family: var(--logo); }    /* the logo never changes */
+.sb-topnav .navbar-brand:hover { color: var(--ember-lit) !important; }
+.ember-brand-suffix {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+.ember-site-link {
+    border-radius: 999px;
+    padding: 6px 16px;
+    border-color: var(--line-strong);
+}
+.ember-site-link:hover { border-color: var(--ember); background: var(--ember); color: var(--bone); }
+.ember-site-link:hover .ember-site-mark { color: var(--bone); }
+
+/* ===== 4. LEFT MENU: rounded pills, the open page glows ember ===== */
+.sb-sidenav.sb-sidenav-dark {
+    background: linear-gradient(180deg, var(--ink), var(--void));
+    border-right: 1px solid var(--line);
+}
+.sb-sidenav-dark .sb-sidenav-menu { padding-top: 14px; }
+.sb-sidenav-dark .sb-sidenav-menu .nav-link {
+    margin: 2px 12px;
+    padding: 11px 16px;
+    border: 0;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+.sb-sidenav-dark .sb-sidenav-menu .nav-link:hover {
+    background: rgba(243, 239, 236, 0.06);
+    color: var(--bone);
+}
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active {
+    background: var(--ember);
+    color: var(--bone);
+    box-shadow: 0 8px 24px rgba(177, 70, 47, 0.35);
+}
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active .sb-nav-link-icon,
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active:hover .sb-nav-link-icon { color: var(--bone); }
+.sb-sidenav-dark .sb-sidenav-menu .nav-link:hover .sb-nav-link-icon { color: var(--ember-lit); }
+.sb-sidenav-dark .sb-sidenav-footer {
+    margin: 12px;
+    border: 1px dashed rgba(243, 239, 236, 0.3);
+    border-radius: var(--radius);
+    background: transparent;
+    font-size: 0.82rem;
+}
+.sb-sidenav-dark .sb-sidenav-footer .small { color: var(--ember-lit); font-size: 0.65rem; }
+
+/* ===== 5. TABS (People, Reports ...) ===== */
+.ember-tabs { gap: 0.4rem; border-bottom: 0; margin-bottom: 2rem; }
+.ember-tab {
+    padding: 0.55rem 1.1rem;
+    margin: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+}
+.ember-tab:hover { color: var(--bone); border-color: var(--ember); }
+.ember-tab.is-on {
+    color: var(--bone);
+    border-color: var(--ember-lit);
+    background: rgba(177, 70, 47, 0.2);
+    box-shadow: 0 0 0 1px var(--ember-lit), 0 0 18px rgba(224, 120, 79, 0.28);
+}
+
+/* ===== 6. BUTTONS: pills ===== */
+.btn {
+    border-radius: 999px;
+    padding: 0.7rem 1.5rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+.btn-dark, .btn-primary, .btn-success {
+    background: var(--ember);
+    border: 1px solid var(--ember);
+    color: var(--bone);
+}
+.btn-dark:hover, .btn-primary:hover, .btn-success:hover {
+    background: var(--ember-lit);
+    border-color: var(--ember-lit);
+    color: var(--bone);
+}
+.btn-light, .btn-secondary, .btn-outline-dark, .btn-outline-secondary {
+    background: var(--char);
+    border: 1px solid transparent;
+    color: var(--bone);
+}
+.btn-light:hover, .btn-secondary:hover, .btn-outline-dark:hover, .btn-outline-secondary:hover {
+    background: #3a2720;
+    border-color: transparent;
+    color: var(--bone);
+}
+.btn-danger { border-radius: 999px; }
+
+/* filter chips */
+.pg-chip {
+    border-radius: 999px;
+    padding: 0.5em 1.1em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+.pg-chip.is-on { background: rgba(177, 70, 47, 0.22); border-color: var(--ember-lit); box-shadow: 0 0 14px rgba(224, 120, 79, 0.25); }
+
+/* ===== 7. PANELS, CARDS, MESSAGES ===== */
+.card, .pg-add, .rv-card, .rv-box, .tb-card {
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+}
+.pg-add { background: rgba(243, 239, 236, 0.04); }
+.pg-add h3 { font-size: 0.95rem; }
+.card-header { border-radius: var(--radius) var(--radius) 0 0; }
+
+.pg-msg, .alert { border-radius: 0; }
+
+/* status labels: small rounded pills with a dot */
+.pg-tag {
+    border-radius: 999px;
+    padding: 0.25em 0.75em;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+}
+.pg-tag.is-green::before, .pg-tag.is-red::before, .pg-tag.is-gold::before {
+    content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 0.45em;
+    border-radius: 50%; background: currentColor; vertical-align: 0.1em;
+}
+
+/* ===== 8. LISTS (tables) ===== */
+.table-scroll, .oz-table-wrap {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(243, 239, 236, 0.03);
+}
+.table { margin-bottom: 0; }
+.table thead th {
+    font-size: 0.68rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line) !important;
+}
+.table td { font-size: 0.92rem; }
+.table tbody tr:hover { background: rgba(224, 120, 79, 0.07); }
+.table a { color: var(--ember-lit); }
+
+/* ===== 9. FORMS ===== */
+.form-control, .form-select, main textarea,
+main input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]), main select {
+    /* fields are a label and a line, the same as on the customer pages */
+    border-radius: 0;
+    font-weight: 400;
+    background-color: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    padding-left: 0;
+    padding-right: 0;
+    color: var(--bone);
+    font-family: var(--sans);
+}
+.form-control:focus, .form-select:focus, main textarea:focus {
+    border-bottom-color: var(--ember-lit);
+    box-shadow: none;
+    background-color: transparent;
+    color: var(--bone);
+}
+/* search boxes stay as pills, like the homepage buttons */
+main .pg-search, main input[type="search"] { border: 1px solid var(--line-strong) !important; border-radius: 999px !important; padding: 0.55rem 1.1rem !important; }
+main .pg-search:focus, main input[type="search"]:focus { border-color: var(--ember-lit) !important; }
+main select option { color: var(--ink); }
+
+/* ===== 10. POINT OF SALE TABLE BOARD ===== */
+.table-board { gap: 16px; max-width: 980px; }
+.table-tile {
+    border-radius: 0;
+    border: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    background: rgba(243, 239, 236, 0.04);
+    min-height: 150px;
+    position: relative;
+}
+.table-tile .tile-id { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.03em; }
+.table-tile .tile-capacity { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; }
+.table-tile .tile-status {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.04em;
+    padding: 0.25em 0.75em;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+}
+.table-tile:hover { background: rgba(243, 239, 236, 0.08); transform: translateY(-3px); }
+.table-tile.is-free:hover { box-shadow: 0 12px 30px rgba(23, 89, 74, 0.25); }
+.table-tile.is-busy { background: rgba(168, 16, 47, 0.08); }
+.table-tile.is-busy:hover { box-shadow: 0 12px 30px rgba(168, 16, 47, 0.25); }
+.legend-swatch { border-radius: 999px; }
+
+/* ===== 11. PAGE-SPECIFIC PANELS ===== */
+/* these pages keep their own small <style> blocks; "main" makes these rules win over them */
+main .pos-menu, main .pos-bill, main .pos-paid, main .pos-pay,
+main .kds-ticket, main .in-card, main .lab-lane, main .tm-version,
+main .tb-card, main .rv-card, main .rv-box {
+    border-radius: var(--radius);
+}
+main .tm-sql, main .lab-sql, main .in-sql pre { border-radius: 0; }
+main .tb-qr { border-radius: 0; }
+
+/* little action buttons become round / pill shaped */
+main .pos-plus, main .pos-qty a { border-radius: 50%; }
+main .pos-plus:hover { background: var(--ember); border-color: var(--ember); color: var(--bone); }
+main .pos-badge, main .in-tag, main .kds-btn, main .pos-method label { border-radius: 999px; }
+main .pos-method label { font-family: var(--sans); font-weight: 600; letter-spacing: 0.04em; }
+main .pos-method label:has(input:checked) { background: rgba(177, 70, 47, 0.22); border-color: var(--ember-lit); }
+main .kds-btn { font-family: var(--sans); font-weight: 600; letter-spacing: 0.04em; }
+main .pos-course h4 { font-family: var(--mono); font-weight: 400; letter-spacing: 0.04em; }
+main .pos-grand { font-weight: 700; }
+
+/* the dish rows on the order screen */
+main .pos-dish { border-radius: 0; }
+
+/* bars in the reports */
+main .rp-bar, main .rp-bar span, main .rv-bar__fill { border-radius: 999px; }
+main .rv-bar__fill { border-radius: 0; }
+
+/* ===== 12. FOOTER ===== */
+.ember-footer { background: linear-gradient(rgba(11, 9, 8, 0), rgba(11, 9, 8, 0.8)); }
+.ember-footer .footer-credit { font-weight: 600; }
+
+/* ===== 12. LESS MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+    .table-tile:hover { transform: none; }
+}

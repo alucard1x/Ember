@@ -1,5 +1,6 @@
 <?php
-session_start(); // Ensure session is started
+// receipt.php - POS: makes the PDF receipt of a paid bill (FPDF)
+require_once __DIR__ . '/checkIfLoggedIn.php';   // staff only: if not logged in, go to the staff login page
 ?>
 <?php
 require('fpdf186/fpdf.php');

@@ -1,4 +1,6 @@
 <?php
+// deleteMenuVerify.php - asks for the admin password before deleting a dish
+require_once __DIR__ . '/../posBackend/checkIfLoggedIn.php';   // staff only: if not logged in, go to the staff login page
 require_once "../config.php";
 
 // Check if 'id' is set and not empty
@@ -7,16 +9,16 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
 } else {
     header("Location: ../panel/menu-panel.php");
         exit();
-    exit(); // Make sure to exit after redirect
+    exit(); // stop here after going to another page
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // User-provided input
-    $provided_account_id = $_POST['admin_id']; // 99999
-    $provided_password = $_POST['password']; // 12345
-    $uniqueString = $provided_account_id . $provided_password;
+    $provided_account_id = $_POST['admin_id'];
+    $provided_password = $_POST['password'];
 
-    if ($uniqueString == "9999912345") {
+    // the admin is: name "aryan", password "ardb1"
+    if ($provided_account_id === 'aryan' && $provided_password === 'ardb1') {
         header("Location: ../menuCrud/deleteItem.php?id=".$menu_id ."");
     } else {
         echo '<script>alert("Incorrect ID or Password!")</script>';
@@ -34,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="../css/verifyAdmin.css" rel="stylesheet" />
-    
+
 </head>
 <body>
     <div class="login-container">
@@ -44,8 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <h5>Admin Credentials needed to Delete Item</h5>
                 <form action="" method="post">
                     <div class="form-group">
-                        <label>Admin Id</label>
-                        <input type="number" name="admin_id" class="form-control" placeholder="Enter User Email" required>
+                        <label>Admin Name</label>
+                        <input type="text" name="admin_id" class="form-control" placeholder="Enter Admin Name" required>
                     </div>
 
                     <div class="form-group">

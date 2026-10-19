@@ -1,19 +1,8 @@
 <?php
-session_start(); // Ensure session is started
-?>
-<?php
+// register_process.php - "Success" card shown after a new account is made, then goes to login.php after 3 seconds
+session_start();
 require_once '../config.php';
-
-            //success login pattern
-            $message = "Register successful.<br>Welcome to Ember Dining & Bar.<br>Please Login with your Account.";
-            $iconClass = "fa-check-circle";
-            $cardClass = "alert-success";
-            $bgColor = "#D4F4DD";
-            $direction = "login.php"; // Success, go to staff panel
-      
-
-// Close the database connection
-$link->close();
+$link->close();   // this page does not need the database
 ?>
 
 <!DOCTYPE html>
@@ -22,7 +11,7 @@ $link->close();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet">
     <style>
-        /* Your custom CSS styles for the success message card here */
+        /* the green success card */
         body {
             text-align: center;
             padding: 40px 0;
@@ -55,87 +44,55 @@ $link->close();
             display: inline-block;
             margin: 0 auto;
         }
-        /* Additional CSS styles based on success/error message */
         .alert-success {
-            /* Customize the styles for the success message card */
-            background-color: <?php echo $bgColor; ?>;
+            background-color: #D4F4DD;
         }
         .alert-success i {
-            color: #5DBE6F; /* Customize the checkmark icon color for success */
+            color: #5DBE6F;
         }
-        .alert-danger {
-            /* Customize the styles for the error message card */
-            background-color: #FFA7A7; /* Custom background color for error */
-        }
-        .alert-danger i {
-            color: #F25454; /* Customize the checkmark icon color for error */
-        }
-        .custom-x {
-            color: #F25454; /* Customize the "X" symbol color for error */
-            font-size: 100px;
-            line-height: 200px;
-        }
-            .alert-box {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .alert-icon {
-            padding-bottom: 20px;
-        }
-    
     </style>
 </head>
 <body>
-    <div class="card <?php echo $cardClass; ?>" style="display: none;">
+    <div class="card alert-success" style="display: none;">
         <div style="border-radius: 200px; height: 200px; width: 200px; background: #F8FAF5; margin: 0 auto;">
-            <?php if ($iconClass === 'fa-check-circle'): ?>
-                <i class="checkmark">✓</i>
-            <?php else: ?>
-                <i class="custom-x" style="font-size: 100px; line-height: 200px;">✘</i>
-            <?php endif; ?>
+            <i class="checkmark">✓</i>
         </div>
-        <h1><?php echo ($cardClass === 'alert-success') ? 'Success' : 'Error'; ?></h1>
-        <p><?php echo $message; ?></p>
+        <h1>Success</h1>
+        <p>Register successful.<br>Welcome to Ember Dining & Bar.<br>Please Login with your Account.</p>
     </div>
 
     <div style="text-align: center; margin-top: 20px;">Redirecting back in <span id="countdown">3</span></div>
 
     <script>
-        //Declare the direction of login success and fail 
-        var direction = "<?php echo $direction; ?>";
-        
-        // Function to show the message card as a pop-up and start the countdown
+        // where to go after the countdown
+        var direction = "login.php";
+
+        // show the card and count down 3, 2, 1, then go to the login page
         function showPopup() {
             var messageCard = document.querySelector(".card");
             messageCard.style.display = "block";
 
             var i = 3;
             var countdownElement = document.getElementById("countdown");
-            var countdownInterval = setInterval(function() {
+            var countdownInterval = setInterval(function () {
                 i--;
                 countdownElement.textContent = i;
                 if (i <= 0) {
                     clearInterval(countdownInterval);
                     window.location.href = direction;
                 }
-            }, 1000); // 1000 milliseconds = 1 second
+            }, 1000);
         }
-
-        // Show the message card and start the countdown when the page is loaded
         window.onload = showPopup;
 
-        // Function to hide the message card after a delay
+        // after 3 seconds hide the card (and go to the login page if we are still here)
         function hidePopup() {
             var messageCard = document.querySelector(".card");
             messageCard.style.display = "none";
-            // Redirect to another page after hiding the pop-up (adjust the delay as needed)
             setTimeout(function () {
-                window.location.href = direction; // Replace with your desired URL
-            }, 3000); // 3000 milliseconds = 3 seconds
+                window.location.href = direction;
+            }, 3000);
         }
-
-        // Hide the message card after 3 seconds (adjust the delay as needed)
         setTimeout(hidePopup, 3000);
     </script>
 </body>

@@ -1,10 +1,15 @@
 <?php
+// reservationReceipt.php - downloads the PDF receipt of one reservation (FPDF). DB: Reservations (R)
 require('../../adminSide/posBackend/fpdf186/fpdf.php');
 require_once '../config.php';
 
-$reservation_id = (int)($_GET['reservation_id'] ?? 1);
+// the reservation id from the address, e.g. ?reservation_id=1320263
+$reservation_id = 1;
+if (isset($_GET['reservation_id'])) {
+    $reservation_id = (int) $_GET['reservation_id'];
+}
 
-// Function to fetch reservation information by reservation ID
+// returns the reservation row, or null
 function getReservationInfoById($link, $reservation_id) {
     $query = "SELECT * FROM Reservations WHERE reservation_id='$reservation_id'";
     $result = mysqli_query($link, $query);
@@ -17,29 +22,23 @@ function getReservationInfoById($link, $reservation_id) {
     }
 }
 
-// Fetch reservation information based on the reservation ID
 $reservationInfo = getReservationInfoById($link, $reservation_id);
 
 if ($reservationInfo) {
-    // Create a PDF using FPDF
+    // the top of the PDF page
     class PDF extends FPDF {
         function Header() {
-            // Set font and size for the logo text
             $this->SetFont('Arial', 'B', 20);
 
-            // Create the logo text
             $logoText = "EMBER DINING & BAR";
             
-            // Add a link-like style (you cannot create actual HTML links in PDF)
-            $this->SetTextColor(0, 0, 0); // Set the text color to blue
+            // the restaurant name (clicking it in the PDF opens the website)
+            $this->SetTextColor(0, 0, 0);
             $this->Cell(0, 10, $logoText, 0, 1, 'C', false, (getenv('APP_URL') ?: 'http://localhost/RestaurantProject') . '/customerSide/home/home.php#hero');
-            //Change project name
-            $this->SetTextColor(0); // Reset text color to default
+            $this->SetTextColor(0);
 
-            // Add space
             $this->Ln(10);
 
-            // Set font and size for "Reservation Information" text
             $this->SetFont('Arial', 'B', 16);
             $this->Cell(0, 10, 'Reservation Information', 1, 1, 'C');
         }
@@ -49,7 +48,7 @@ if ($reservationInfo) {
     $pdf = new PDF();
     $pdf->AddPage();
     $pdf->SetFont('Arial', '', 12);
-    // Create a table for reservation information
+    // one row for each detail
     $pdf->Cell(40, 10, 'Reservation ID:', 1);
     $pdf->Cell(150, 10, $reservationInfo['reservation_id'], 1);
     $pdf->Ln();
@@ -77,8 +76,8 @@ if ($reservationInfo) {
     $pdf->Cell(40, 10, 'Special Request:', 1);
     $pdf->Cell(150, 10, $reservationInfo['special_request'], 1);
     $pdf->Ln();
-    
-    
+
+    // 'D' = download the file
     $pdf->Output('Reservation-Copy-ID' . $reservationInfo['reservation_id'] . '.pdf', 'D');
 } else {
     echo 'Invalid reservation ID or reservation not found.';

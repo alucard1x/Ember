@@ -1,44 +1,32 @@
 <?php
+// kitchen-actions.php - kitchen buttons: "Start" (waiting → cooking) and "Ready" (→ ready, time_ended)
+require_once __DIR__ . '/../checkIfLoggedIn.php';   // staff only: if not logged in, go to the staff login page
 require_once '../../config.php';
 
-// Handle setting time_ended and undo actions
 if (isset($_GET['action']) && isset($_GET['kitchen_id'])) {
     $action = $_GET['action'];
     $kitchen_id = intval($_GET['kitchen_id']);
-    
-    if ($action === 'set_time_ended') {
-        $currentTime = date('Y-m-d H:i:s');
-        $updateQuery = "UPDATE Kitchen SET time_ended = '$currentTime' WHERE kitchen_id = $kitchen_id";
-        if ($link->query($updateQuery) === TRUE) {
-            header("Location: ../../panel/kitchen-panel.php"); // Redirect back to kitchen panel
 
-            
-        } else {
-            // Error updating time_ended
-            echo "Error updating time_ended: " . $link->error;
-        }
-        
+    if ($action === 'start') {
+        // the cook starts this dish
+        $stmt = $link->prepare("UPDATE Kitchen SET status = 'cooking' WHERE kitchen_id = ? AND status = 'waiting'");
+        $stmt->bind_param('i', $kitchen_id);
+        $stmt->execute();
+    }
+
+    if ($action === 'set_time_ended') {
+        // the dish is ready: save the time it was finished
+        $currentTime = date('Y-m-d H:i:s');
+        $stmt = $link->prepare("UPDATE Kitchen SET time_ended = ?, status = 'ready' WHERE kitchen_id = ?");
+        $stmt->bind_param('si', $currentTime, $kitchen_id);
+        $stmt->execute();
     }
 }
 
-/*
-if (isset($_GET['UndoUnshow'])) {
-        $selectQuery = "SELECT kitchen_id FROM Kitchen WHERE  ORDER BY time_ended DESC";
-
-        $selectResult = $link->query($selectQuery);
-        if ($selectResult && $selectResult->num_rows > 0) {
-            $row = $selectResult->fetch_assoc();
-            $time_submitted = $row['time_submitted'];
-            $updateQuery = "UPDATE Kitchen SET time_ended = NULL WHERE time_submitted = '$time_submitted'";
-            if ($link->query($updateQuery) === TRUE) {
-                // Time ended undone successfully
-            } else {
-                // Error undoing time_ended
-            }
-        }
-    }
- * 
- */
-
-
-?>
+// the kitchen screen calls this with ajax=1 and reloads the tickets itself
+if (isset($_GET['ajax'])) {
+    echo 'ok';
+    exit;
+}
+header("Location: ../../panel/kitchen-panel.php");
+exit;

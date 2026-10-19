@@ -1,15 +1,22 @@
 <?php
-// Include your database connection code here (not shown in this example).
-require_once '../config.php';
+// register.php - "Create Account" page (adds a row to Accounts and to Memberships)
+require_once '../config.php';   // gives us $link
 session_start();
 
-// Define variables and initialize them to empty values
-$email = $member_name = $password = $phone_number = "";
-$email_err = $member_name_err = $password_err = $phone_number_err = "";
+$email = "";
+$member_name = "";
+$password = "";
+$phone_number = "";
 
-// Check if the form was submitted.
+$email_err = "";
+$member_name_err = "";
+$password_err = "";
+$phone_number_err = "";
+
+// this part runs only when the form is sent
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validate email
+
+    // 1. check the email
     if (empty(trim($_POST["email"]))) {
         $email_err = "Please enter your email.";
     } else if (!filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL)) {
@@ -18,17 +25,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email = trim($_POST["email"]);
     }
 
+    // is this email already used by another account?
     $selectCreatedEmail = "SELECT email from Accounts WHERE email = ?";
-
-    if($stmt = $link->prepare($selectCreatedEmail)){
+    if ($stmt = $link->prepare($selectCreatedEmail)) {
         $stmt->bind_param("s", $_POST['email']);
-
         $stmt->execute();
-
         $stmt->store_result();
 
         if ($stmt->num_rows > 0) {
-            // Email already exists
             $email_err = "This email is already registered.";
         } else {
             $email = trim($_POST["email"]);
@@ -36,14 +40,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 
-    // Validate member name
+    // 2. check the name
     if (empty(trim($_POST["member_name"]))) {
         $member_name_err = "Please enter your member name.";
     } else {
         $member_name = trim($_POST["member_name"]);
     }
 
-    // Validate password
+    // 3. check the password (at least 6 characters)
     if (empty(trim($_POST["password"]))) {
         $password_err = "Please enter a password.";
     } elseif (strlen(trim($_POST["password"])) < 6) {
@@ -52,196 +56,127 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = trim($_POST["password"]);
     }
 
-    // Validate phone number
+    // 4. check the phone number (only numbers)
     if (empty(trim($_POST["phone_number"]))) {
         $phone_number_err = "Please enter your phone number.";
-    } else if(!is_numeric(trim($_POST['phone_number']))){
+    } else if (!is_numeric(trim($_POST['phone_number']))) {
         $phone_number_err = "Only enter numeric values!";
     } else {
         $phone_number = trim($_POST["phone_number"]);
     }
 
-    // Check input errors before inserting into the database
+    // 5. no errors -> save the new member
     if (empty($email_err) && empty($member_name_err) && empty($password_err) && empty($phone_number_err)) {
-        // Start a transaction
+
+        // transaction = both inserts work, or neither is saved
         mysqli_begin_transaction($link);
 
-        // Prepare an insert statement for Accounts table
-      // Prepare an insert statement for Accounts table
-$sql_accounts = "INSERT INTO Accounts (email, password, phone_number, register_date) VALUES (?, ?, ?, NOW())";
-if ($stmt_accounts = mysqli_prepare($link, $sql_accounts)) {
-    // Bind variables to the prepared statement as parameters
-    mysqli_stmt_bind_param($stmt_accounts, "sss", $param_email, $param_password, $param_phone_number);
+        // first the account (password is saved as plain text, like the rest of this project)
+        $sql_accounts = "INSERT INTO Accounts (email, password, phone_number, register_date) VALUES (?, ?, ?, NOW())";
+        if ($stmt_accounts = mysqli_prepare($link, $sql_accounts)) {
+            mysqli_stmt_bind_param($stmt_accounts, "sss", $email, $password, $phone_number);
 
-    // Set parameters
-    $param_email = $email;
-    // Store the password as plain text (not recommended for production)
-    $param_password = $password;
-    $param_phone_number = $phone_number;
-
-    // ...
-}
-
-            // Attempt to execute the prepared statement for Accounts table
             if (mysqli_stmt_execute($stmt_accounts)) {
-                // Get the last inserted account_id
+                // the id MySQL gave to the new account
                 $last_account_id = mysqli_insert_id($link);
 
-                // Prepare an insert statement for Memberships table
+                // then the membership, starting with 0 points
                 $sql_memberships = "INSERT INTO Memberships (member_name, points, account_id) VALUES (?, ?, ?)";
                 if ($stmt_memberships = mysqli_prepare($link, $sql_memberships)) {
-                    // Bind variables to the prepared statement as parameters
-                    mysqli_stmt_bind_param($stmt_memberships, "sii", $param_member_name, $param_points, $last_account_id);
+                    $points = 0;
+                    mysqli_stmt_bind_param($stmt_memberships, "sii", $member_name, $points, $last_account_id);
 
-                    // Set parameters for Memberships table
-                    $param_member_name = $member_name;
-                    $param_points = 0; // You can set an initial value for points
-
-                    // Attempt to execute the prepared statement for Memberships table
                     if (mysqli_stmt_execute($stmt_memberships)) {
-                        // Commit the transaction
+                        // both worked -> save and show the success page
                         mysqli_commit($link);
-
-                        // Registration successful, redirect to the login page
                         header("location: register_process.php");
                         exit;
                     } else {
-                        // Rollback the transaction if there was an error
-                        mysqli_rollback($link);
+                        mysqli_rollback($link);   // undo the account
                         echo "Oops! Something went wrong. Please try again later.";
                     }
 
-                    // Close the statement for Memberships table
                     mysqli_stmt_close($stmt_memberships);
                 }
             } else {
-                // Rollback the transaction if there was an error
                 mysqli_rollback($link);
                 echo "Oops! Something went wrong. Please try again later.";
             }
 
-            // Close the statement for Accounts table
             mysqli_stmt_close($stmt_accounts);
         }
     }
-
-
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
-    <title>Sign Up &mdash; Ember Dining &amp; Bar</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0; /* Remove default margin */
-            background-color:black;
-             background-image: url('../image/login-background.jpg'); /* Set the background image path */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: white;
-            }
-
-
-        
-/* Style for the container within login.php */
-.register-container {
-  padding: 50px; /* Adjust the padding as needed */
-  border-radius: 10px; /* Add rounded corners */
-  margin: 100px auto; /* Center the container horizontally */
-  max-width: 500px; /* Set a maximum width for the container */
-}
-        .register_wrapper {
-            width: 400px; /* Increase the container width */
-            padding: 20px;
-        }
-
-        h2 {
-            text-align: center;
-            font-family: 'Montserrat', serif;
-        }
-
-        p {
-            font-family: 'Montserrat', serif;
-        }
-
-        .form-group {
-            margin-bottom: 15px; /* Add space between form elements */
-        }
-
-        ::placeholder {
-            font-size: 12px; /* Adjust the font size as needed */
-        }
-
-        /* Add flip animation class to all Font Awesome icons */
-        .fa-flip {
-            animation: fa-flip 3s infinite;
-        }
-
-        /* Keyframes for the flip animation */
-        @keyframes fa-flip {
-            0% {
-                transform: scale(1) rotateY(0);
-            }
-            50% {
-                transform: scale(1.2) rotateY(180deg);
-            }
-            100% {
-                transform: scale(1) rotateY(360deg);
-            }
-        }
-        
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#14100f">
+    <title>Create Account &mdash; Ember</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- the design of the whole site -->
+    <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
+    <!-- same look as the new homepage -->
+    <link rel="stylesheet" href="../css/ember-v2.css?v=<?= @filemtime(__DIR__ . '/../css/ember-v2.css') ?>">
+    <!-- layout shared by the three sign-in pages -->
+    <link rel="stylesheet" href="../css/entrance.css?v=<?= @filemtime(__DIR__ . '/../css/entrance.css') ?>">
 </head>
-<body class="has-site-panel">
+<body class="sl-body">
 <?php $bgAssets = '../image'; include '../components/background.php'; ?>
 <?php $brandHome = '../home/home.php'; include '../components/brandLink.php'; ?>
-    <div class="register-container">
-        <h1 class="panel-title">Create Account</h1>
-    <div class="register_wrapper">
-       
+<main class="sl">
+
+    <!-- left: the Ember name with what membership gives you -->
+    <section class="sl-intro">
+        <p class="sl-kicker">Membership</p>
+        <a class="sl-mark" href="../home/home.php" aria-label="Ember homepage">Ember</a>
+        <span class="sl-rule" aria-hidden="true"></span>
+        <dl class="sl-meta">
+            <div><dt>Points</dt><dd>1 for every &#8377;1</dd></div>
+            <div><dt>VIP</dt><dd>1,000 points</dd></div>
+            <div><dt>Service</dt><dd>11:00 &ndash; 22:00</dd></div>
+        </dl>
+    </section>
+
+    <!-- right: the form, in the same glass panel as the homepage hero card -->
+    <section class="sl-ticket" aria-labelledby="sl-ticket-title">
+        <h1 class="sl-ticket__title" id="sl-ticket-title">Create account</h1>
+
         <form action="register.php" method="post">
             <div class="form-group">
-                <label>Email</label>
-                <input type="text" name="email" class="form-control" placeholder="Enter Email">
-                                <span class="text-danger"><?php echo $email_err; ?></span>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" class="form-control">
+                <span class="text-danger"><?php echo $email_err; ?></span>
             </div>
 
             <div class="form-group">
-                <label>Member Name</label>
-                <input type="text" name="member_name" class="form-control" placeholder="Enter Member Name">
-                                <span class="text-danger"><?php echo $member_name_err; ?></span>
+                <label for="member_name">Name</label>
+                <input type="text" id="member_name" name="member_name" class="form-control">
+                <span class="text-danger"><?php echo $member_name_err; ?></span>
             </div>
 
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" class="form-control" placeholder="Enter Password">
-                                <span class="text-danger"><?php echo $password_err; ?></span>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control">
+                <span class="text-danger"><?php echo $password_err; ?></span>
             </div>
 
             <div class="form-group">
-                <label>Phone Number</label>
-                <input type="text" name="phone_number" class="form-control" placeholder="Enter Phone Number">
-                                <span class="text-danger"><?php echo $phone_number_err; ?></span>
+                <label for="phone_number">Phone number</label>
+                <input type="text" id="phone_number" name="phone_number" class="form-control">
+                <span class="text-danger"><?php echo $phone_number_err; ?></span>
             </div>
 
-            <button class="btn" type="submit" name="register" value="Register">Register</button>
-           
+            <button class="btn sl-btn" type="submit" name="register" value="Register">Create account</button>
         </form>
 
-        <p style="margin-top:1em; color:white;">Already have an account? <a href="../customerLogin/login.php" >Proceed to Login</a></p>
-    </div>
-    </div>
+        <p class="sl-ticket__foot">Already a member? <a href="login.php">Sign in</a></p>
+    </section>
+
+</main>
+
 </body>
 </html>

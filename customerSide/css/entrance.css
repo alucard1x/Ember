@@ -1,0 +1,137 @@
+/* entrance.css - the three sign-in pages: member login, create account (customerLogin/)
+   and staff login (adminSide/StaffLogin/). Same layout on all three:
+   left = the Ember name with a few quiet details, right = the form in the homepage's glass panel.
+   Uses the homepage fonts and colours (loaded by ember-v2.css). */
+
+.sl-body { display: block; min-height: 100vh; padding: 0; }
+
+.sl {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 8rem max(16px, 4vw) 4rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+/* ===== LEFT: the name, quietly ===== */
+/* the small Ember logo top left comes from ember-v2.css (same on every page) */
+
+.sl-kicker {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    margin: 0 0 1.4rem;
+}
+.sl-mark {
+    display: inline-block;
+    margin: 0;
+    font-family: Copperplate, 'Copperplate Gothic Light', 'Cinzel', Georgia, serif;   /* the Ember logo */
+    font-size: clamp(4rem, 9vw, 8rem);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: 0.08em;
+    color: var(--bone);
+}
+.sl-rule { display: block; width: 72px; height: 1px; margin: 2.2rem 0 2rem; background: var(--ember); }
+
+.sl-meta { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0 3rem; margin: 0; }
+.sl-meta dt {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(243, 239, 236, 0.45);
+    margin-bottom: 0.45rem;
+}
+.sl-meta dd {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--bone);
+    font-variant-numeric: tabular-nums;
+}
+
+a.sl-mark { color: var(--bone); text-decoration: none; transition: color 0.3s; }
+a.sl-mark:hover { color: var(--ember-lit); }
+
+/* ===== RIGHT: the form, in the homepage's glass panel ===== */
+.sl-ticket {
+    position: relative;
+    padding: 2.4rem 2.4rem 2rem;
+    background: rgba(243, 239, 236, 0.07);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+            backdrop-filter: blur(18px) saturate(1.2);
+    border: 1px solid rgba(243, 239, 236, 0.14);
+    color: var(--bone);
+}
+.sl-ticket__title {
+    margin: 0 0 2rem;
+    font-family: var(--hk);
+    font-weight: 700;
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--bone);
+}
+
+/* fields: just a label and a line, like the old site and the homepage's quiet details */
+.sl-ticket .form-group { margin-bottom: 1.6rem; }
+.sl-ticket .form-group label {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    color: rgba(243, 239, 236, 0.5);
+    margin-bottom: 0.2rem;
+}
+.sl-ticket .form-control {
+    padding: 0.7em 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(243, 239, 236, 0.25);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--bone);
+    font-size: 1.05rem;
+}
+.sl-ticket .form-control:focus {
+    background: transparent;
+    border-bottom-color: var(--ember-lit);
+    box-shadow: none;
+}
+/* hide the up/down arrows on the number box */
+.sl-ticket input[type=number]::-webkit-inner-spin-button,
+.sl-ticket input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.sl-ticket input[type=number] { -moz-appearance: textfield; }
+
+.sl-ticket .alert { color: #f0b3a8; background: rgba(168, 16, 47, 0.16); border: 1px solid rgba(168, 16, 47, 0.45); border-radius: 0; }
+.sl-ticket .text-danger { display: block; margin-top: 0.45rem; font-size: 0.8rem; color: #e0715c; }
+.sl-ticket .text-danger:empty { display: none; }
+
+.sl-btn { width: 100%; justify-content: center; margin-top: 0.6rem; padding: 1.1em 2em; font-size: 0.78rem; }
+
+.sl-ticket__foot {
+    margin: 1.6rem 0 0;
+    padding-top: 1.2rem;
+    border-top: 1px dashed rgba(243, 239, 236, 0.3);
+    font-size: 0.85rem;
+    color: var(--bone-dim);
+}
+.sl-ticket__foot a { color: var(--bone); border-bottom: 1px solid var(--ember-lit); padding-bottom: 1px; }
+.sl-ticket__foot a:hover { color: var(--ember-lit); }
+
+/* ===== PHONE AND TABLET ===== */
+@media (max-width: 860px) {
+    .sl { grid-template-columns: 1fr; padding-top: 4rem; gap: 2.5rem; }
+    .sl-mark { font-size: clamp(3rem, 16vw, 4.2rem); }
+    .sl-rule { margin: 1.4rem 0 1.4rem; }
+    .sl-meta { gap: 0 1.6rem; }
+}
+

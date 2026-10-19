@@ -1,0 +1,295 @@
+/* ember-v2.css - gives every customer page (menu, story, reservations, login, register,
+   profile, order tracker) and the staff login the same look as the new homepage (oryzo.css):
+   Hanken Grotesk, bold uppercase titles, DM Mono labels, pill buttons, square glass panels.
+   It is loaded after style.css and only changes the look. The "Ember" logo and the
+   "aryan made it" signature are deliberately left exactly as they are. */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300..800&family=DM+Mono:wght@400;500&display=swap');
+
+/* ===== 1. TOKENS ===== */
+:root {
+    --char: #2a1c17;
+    --hk: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'DM Mono', ui-monospace, monospace;
+    --line: rgba(243, 239, 236, 0.12);
+    --radius: 0;          /* square panels, like the homepage cards; only buttons and tags are round */
+    /* the page fonts used by style.css now point at the homepage fonts
+       (--brand-font for the logo and --script for the signature are NOT changed) */
+    --sans: var(--hk);
+    --serif: var(--hk);
+}
+
+body { font-family: var(--hk); font-weight: 400; }
+
+/* ===== 2. TEXT ===== */
+.e-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-indent: 0;
+    color: var(--bone-dim);
+}
+.e-eyebrow--ember { color: var(--ember-lit); }
+
+.e-display, .panel-title, .reserve-title {
+    font-family: var(--hk);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 4.8vw, 4.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+}
+.panel-title, .reserve-title { font-size: clamp(2rem, 4vw, 3.4rem); }
+.site-panel h2, .reserve-container h2 {
+    font-family: var(--hk);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+.e-lede { font-weight: 500; line-height: 1.45; color: var(--bone); }
+.e-body { line-height: 1.7; }
+
+/* text links: bold capitals with the sliding underline */
+.e-link { font-family: var(--hk); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; text-indent: 0; }
+
+/* the main button: a solid ember pill */
+.e-cta {
+    border-radius: 999px;
+    background: var(--ember);
+    border-color: var(--ember);
+    padding: 1em 1.9em;
+    font-family: var(--hk);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-indent: 0;
+}
+.e-cta:hover { background: var(--ember-lit); border-color: var(--ember-lit); }
+
+/* ===== 3. HEADER AND MENUS ===== */
+.e-nav a, .e-nav button {
+    font-family: var(--hk);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-indent: 0;
+}
+.e-account__button {
+    border: 1px solid currentColor !important;
+    border-radius: 999px;
+    padding: 0.55em 1.2em !important;
+}
+.e-account__button::after { display: none !important; }
+.e-account__button:hover { background: var(--ember); border-color: var(--ember) !important; }
+.e-account__panel {
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: rgba(20, 16, 15, 0.97);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    padding: 0.5rem;
+}
+.e-account__panel::before { display: none; }
+.e-account__panel a { border-radius: 0; font-family: var(--hk); letter-spacing: 0.02em; text-transform: none; font-size: 0.85rem; }
+.e-account__meta { font-family: var(--mono); letter-spacing: 0.02em; }
+
+.e-overlay__list a {
+    font-family: var(--hk);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+}
+
+/* ===== 4. MENU PAGE ===== */
+.e-menu__filter button {
+    border: 1px solid rgba(243, 239, 236, 0.22);
+    border-radius: 999px;
+    padding: 0.6em 1.2em;
+    font-family: var(--hk);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-indent: 0;
+}
+.e-menu__filter button::after { display: none; }
+.e-menu__filter button:hover { border-color: var(--ember); }
+.e-menu__filter button[aria-pressed='true'] {
+    border-color: var(--ember-lit);
+    background: rgba(177, 70, 47, 0.2);
+    box-shadow: 0 0 0 1px var(--ember-lit), 0 0 18px rgba(224, 120, 79, 0.28);
+}
+.e-menu__search input {
+    border: 1px solid rgba(243, 239, 236, 0.22) !important;
+    border-radius: 999px !important;
+    padding: 0.8em 1.3em !important;
+    background: rgba(243, 239, 236, 0.05) !important;
+    font-family: var(--hk);
+}
+.e-menu__search input:focus { border-color: var(--ember-lit) !important; box-shadow: 0 0 0 3px rgba(224, 120, 79, 0.2); }
+
+.e-course__head .e-display { font-size: clamp(1.8rem, 3.4vw, 3rem); }
+.e-dish { border-radius: 0; }
+.e-dish__name { font-family: var(--hk); font-weight: 600; letter-spacing: 0; }
+.e-dish__price { font-family: var(--mono); letter-spacing: 0.02em; }
+.e-dish__add {
+    border-radius: 999px;
+    font-family: var(--hk);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-indent: 0;
+}
+.e-dish__add:hover { background: var(--ember); border-color: var(--ember); color: var(--bone); }
+
+/* the bill on the menu page */
+.e-bill {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(243, 239, 236, 0.04);
+    padding: 1.2rem 1.4rem;
+}
+.e-bill__sum .is-grand { font-weight: 700; }
+
+/* ===== 5. PHOTOS ===== */
+.e-figure picture, .e-figure img, .e-plate:not(.e-plate--bleed) { border-radius: var(--radius); overflow: hidden; }
+.e-figure figcaption { font-family: var(--mono); letter-spacing: 0.04em; }
+
+/* ===== 6. FOOTER (the signature itself is not touched) ===== */
+.e-footer__col .e-eyebrow { color: var(--ember-lit); }
+.e-footer__col a, .e-footer__col p { font-family: var(--hk); }
+
+/* ===== 7. FORM PAGES (login, register, profile, reservation, staff login) ===== */
+/* the same glass panel as the homepage hero card (square, hairline border) */
+.login-container, .register-container, .site-panel, .reserve-container .column {
+    border: 1px solid rgba(243, 239, 236, 0.14);
+    background: rgba(243, 239, 236, 0.07);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+            backdrop-filter: blur(18px) saturate(1.2);
+}
+.login-container, .register-container, .site-panel { margin-top: 1rem; }
+.reserve-container .column { padding: 2rem; }
+
+.form-group label, .site-panel .label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--bone-dim);
+}
+.form-control,
+.reserve-container input,
+.reserve-container select,
+.reserve-container textarea {
+    /* fields are a label and a line, everywhere */
+    padding: 0.7em 0;
+    font-family: var(--hk);
+    font-size: 1.05rem;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(243, 239, 236, 0.25);
+    border-radius: 0;
+}
+.form-control:focus,
+.reserve-container input:focus,
+.reserve-container select:focus,
+.reserve-container textarea:focus {
+    border-bottom-color: var(--ember-lit);
+    box-shadow: none;
+    background: transparent;
+}
+
+.btn, button[type='submit'] {
+    border-radius: 999px;
+    background: var(--ember);
+    border-color: var(--ember);
+    padding: 1em 2em;
+    font-family: var(--hk);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-indent: 0;
+}
+.btn:hover, button[type='submit']:hover { background: var(--ember-lit); border-color: var(--ember-lit); }
+
+.alert, .alert-danger { border-radius: 0; }
+.site-panel > a { border-radius: 999px; font-family: var(--hk); font-weight: 600; letter-spacing: 0.04em; }
+.login-container p, .register-container p { font-family: var(--hk); }
+
+/* ===== 8. QR ORDERING NOTE AND ORDER TRACKER ===== */
+.e-table-note { border-radius: 999px; font-family: var(--hk); }
+.e-chip { border-radius: 999px; font-family: var(--mono); letter-spacing: 0.04em; }
+.e-track__name { font-family: var(--hk); font-weight: 600; letter-spacing: 0.02em; }
+.e-track__dish { border-radius: 0; }
+.reserve-container input[type='date'], .reserve-container input[type='time'] { margin-bottom: 0.6rem; }
+/* staff login: the panel sits inside a .container, keep it clear of the Ember logo at the top */
+.container > .site-panel { margin-top: 5.5rem; margin-bottom: 3rem; }
+
+/* the Ember logo in the footer links to the homepage */
+a.e-footer__mark { display: inline-block; transition: color 0.3s; }
+a.e-footer__mark:hover { color: var(--ember-lit); }
+
+/* top menu on the other pages: no underline; the page you're on gets a small ember dot,
+   the same marker the homepage uses for its section index */
+.e-nav a::after { display: none; }
+.e-nav a[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    left: -11px;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    margin-top: -2.5px;
+    border-radius: 50%;
+    background: var(--ember-lit);
+}
+.e-nav a { position: relative; opacity: 0.8; transition: opacity 0.3s; }
+.e-nav a:hover, .e-nav a[aria-current='page'] { opacity: 1; }
+
+/* smooth scrolling (Lenis) needs the browser's own smooth scrolling switched off */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ===== THE EMBER LOGO: the same everywhere =====
+   Top left, 1.4rem, in the middle of a 64px top bar, with the same side margin as the homepage.
+   Used by the homepage header (.oz-header__logo), the header on Menu / Our Story / tracker
+   (.e-masthead__wordmark) and the logo on the form pages (.site-brand). */
+:root { --logo-size: 1.4rem; --logo-left: max(16px, 3.125vw); --bar: 64px; }
+
+body .e-masthead {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    height: var(--bar);
+    padding: 0 var(--logo-left);
+}
+body .e-masthead__brand { order: 0; position: static; transform: none; margin-right: auto; }
+body .e-masthead__wordmark, body .site-brand {
+    font-size: var(--logo-size);
+    letter-spacing: 0.13em;
+    text-indent: 0;
+    line-height: 1;
+}
+body .e-nav { order: 1; }
+body .e-burger { order: 2; }
+body .e-masthead__spacer { display: none; }
+
+body .site-brand {
+    left: var(--logo-left);
+    top: calc((var(--bar) - var(--logo-size)) / 2);
+    transform: none;
+}
+body .site-brand:hover { color: var(--ember-lit); }
+
+/* phone menu button: the same "Menu" pill as on the homepage, instead of three lines */
+body .e-burger {
+    width: auto;
+    height: 2.4rem;
+    padding: 0 1.1rem;
+    border-radius: 999px;
+    background: var(--char);
+    color: var(--bone);
+    font-family: var(--hk);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+body .e-burger span:not(.e-visually-hidden) { display: none; }
+body .e-burger::before { content: 'Menu'; }
+body .e-burger[aria-expanded='true']::before { content: 'Close'; }

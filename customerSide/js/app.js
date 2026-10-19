@@ -1,117 +1,359 @@
-const hamburger = document.querySelector('.header .nav-bar .nav-list .hamburger');
-const mobile_menu = document.querySelector('.header .nav-bar .nav-list ul');
-const menu_item = document.querySelectorAll('.header .nav-bar .nav-list ul li a');
-const header = document.querySelector('.header.container');
+// app.js - all the JavaScript for the customer website
+// (header hide on scroll, phone menu, sign in dropdown, dimmer, fade-in, menu filter)
+// it is loaded at the bottom of every page by footer.php
 
-/* Below 1200px the nav is a slide-in panel; at or above it the horizontal bar
- * is showing and none of the touch behaviour below should run. This is the
- * same breakpoint css/style.css uses to hide the hamburger, so the two can
- * never disagree about which layout is on screen. */
-const small_screen = window.matchMedia('(max-width: 1199px)');
+var lessMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-hamburger.addEventListener('click', () => {
-	hamburger.classList.toggle('active');
-	mobile_menu.classList.toggle('active');
-	sync_nav_state();
-});
 
-document.addEventListener('scroll', () => {
-	// Don't repaint the bar while the panel is open — the panel is the surface
-	// the viewer is looking at, and the scroll position behind it is frozen.
-	if (document.body.classList.contains('nav-open')) return;
+// ---------- 1. header hides when you scroll down, comes back when you scroll up ----------
 
-	var scroll_position = window.scrollY;
-	if (scroll_position > 250) {
-		header.style.backgroundColor = '#29323c';
-	} else {
-		header.style.backgroundColor = 'transparent';
-	}
-});
+function setupHeader() {
+    var header = document.querySelector('.e-masthead');
+    if (!header) {
+        return;
+    }
+    var lastScroll = window.scrollY;
+    var waiting = false;
 
-menu_item.forEach((item) => {
-	item.addEventListener('click', () => {
-		hamburger.classList.toggle('active');
-		mobile_menu.classList.toggle('active');
-		sync_nav_state();
-	});
-});
+    function updateHeader() {
+        var scroll = window.scrollY;
+        var goingDown = scroll > lastScroll;
 
-/* ---------------------------------------------------------------------
- * Touch behaviour for the slide-in panel
- *
- * Everything below is new and everything below is gated on small_screen, so
- * the desktop nav — which has no hamburger, no panel and a working :hover
- * dropdown — is left exactly as it was.
- * ------------------------------------------------------------------ */
+        var menuIsOpen = document.body.classList.contains('e-menu-open');
+        if (scroll > 220 && goingDown && !menuIsOpen) {
+            header.classList.add('is-tucked');       // hide
+        } else if (!goingDown || scroll <= 220) {
+            header.classList.remove('is-tucked');    // show
+        }
 
-/* Locks the page behind the open panel. Without this the panel stays put
- * while the site scrolls around underneath it, which reads as the menu being
- * broken. */
-function sync_nav_state() {
-	var open = mobile_menu.classList.contains('active');
-	document.body.classList.toggle('nav-open', open);
+        if (scroll > 0) {
+            lastScroll = scroll;
+        } else {
+            lastScroll = 0;
+        }
+        waiting = false;
+    }
 
-	if (!open) close_dropdown();
-
-	// The scroll listener stops repainting while the panel is open, so put the
-	// bar back to whatever the scroll position calls for on the way out.
-	if (!open && header) {
-		header.style.backgroundColor = window.scrollY > 250 ? '#29323c' : 'transparent';
-	}
+    // run updateHeader at most once per frame
+    window.addEventListener('scroll', function () {
+        if (waiting) {
+            return;
+        }
+        waiting = true;
+        window.requestAnimationFrame(updateHeader);
+    }, { passive: true });
 }
 
-const dropdown = document.querySelector('.header .nav-bar .nav-list .dropdown');
-const dropbtn = dropdown && dropdown.querySelector('.dropbtn');
 
-function close_dropdown() {
-	if (dropdown) dropdown.classList.remove('is-open');
+// ---------- 2. full screen menu on phones (the 3 lines button) ----------
+
+function setupPhoneMenu() {
+    var button = document.querySelector('.e-burger');
+    var menu = document.querySelector('.e-overlay');
+    if (!button || !menu) {
+        return;
+    }
+    var lastFocused = null;   // so we can go back to it after closing
+
+    function openMenu() {
+        lastFocused = document.activeElement;
+        menu.classList.add('is-open');
+        menu.removeAttribute('aria-hidden');
+        button.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('e-menu-open');   // stops the page scrolling
+        var firstLink = menu.querySelector('a, button');
+        if (firstLink) {
+            firstLink.focus({ preventScroll: true });
+        }
+    }
+
+    function closeMenu() {
+        menu.classList.remove('is-open');
+        menu.setAttribute('aria-hidden', 'true');
+        button.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('e-menu-open');
+        if (lastFocused && lastFocused.focus) {
+            lastFocused.focus({ preventScroll: true });
+        }
+    }
+
+    button.addEventListener('click', function () {
+        if (menu.classList.contains('is-open')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    // clicking a link closes the menu
+    menu.addEventListener('click', function (e) {
+        if (e.target.closest('a')) {
+            closeMenu();
+        }
+    });
+
+    // Escape key closes the menu
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && menu.classList.contains('is-open')) {
+            closeMenu();
+        }
+    });
+
+    // Tab key stays inside the menu while it is open
+    menu.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || !menu.classList.contains('is-open')) {
+            return;
+        }
+        var items = menu.querySelectorAll('a[href], button:not([disabled])');
+        if (items.length == 0) {
+            return;
+        }
+        var first = items[0];
+        var last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    });
+
+    // if the window becomes wide again, close the phone menu
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 900 && menu.classList.contains('is-open')) {
+            closeMenu();
+        }
+    });
 }
 
-if (dropdown && dropbtn) {
-	/* The account menu is opened by :hover in components/footer.php, which a
-	 * finger cannot do — so on a phone Member Login, Staff Login, Sign Up,
-	 * Profile and Logout were all unreachable. On a small screen the same
-	 * markup becomes a tap-to-open accordion (see css/mobile.css); on a wide
-	 * screen this handler does nothing and hover still runs the show. */
-	dropbtn.addEventListener('click', (e) => {
-		if (!small_screen.matches) return;
-		e.preventDefault();
-		e.stopPropagation();
-		dropdown.classList.toggle('is-open');
-	});
 
-	// Tapping a link inside it navigates away; closing first stops the panel
-	// from flashing open again if the browser restores the page from cache.
-	dropdown.querySelectorAll('a').forEach((link) => {
-		link.addEventListener('click', () => {
-			if (!small_screen.matches) return;
-			close_dropdown();
-		});
-	});
+// ---------- 3. Sign In / Account dropdown ----------
+// mouse hover opens it (CSS), a click keeps it open until you click somewhere else
+
+function setupAccountMenu() {
+    var box = document.querySelector('.e-account');
+    if (!box) {
+        return;
+    }
+    var button = box.querySelector('.e-account__button');
+    if (!button) {
+        return;
+    }
+
+    function closeAccountMenu() {
+        box.classList.remove('is-open');
+        button.setAttribute('aria-expanded', 'false');
+    }
+
+    button.addEventListener('click', function (e) {
+        e.preventDefault();
+        var isOpen = box.classList.toggle('is-open');
+        if (isOpen) {
+            button.setAttribute('aria-expanded', 'true');
+        } else {
+            button.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // click outside closes it
+    document.addEventListener('click', function (e) {
+        if (!box.contains(e.target)) {
+            closeAccountMenu();
+        }
+    });
+
+    // Escape closes it
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && box.classList.contains('is-open')) {
+            closeAccountMenu();
+            button.focus();
+        }
+    });
 }
 
-// Escape closes the panel, for anyone on a small window with a keyboard.
-document.addEventListener('keydown', (e) => {
-	if (e.key !== 'Escape') return;
-	if (!mobile_menu.classList.contains('active')) return;
-	hamburger.classList.remove('active');
-	mobile_menu.classList.remove('active');
-	sync_nav_state();
-});
 
-/* Rotating a phone, or dragging a desktop window across the breakpoint, must
- * not leave the page stuck with a locked body or a half-open accordion from
- * the layout that is no longer on screen. */
-function on_breakpoint_change() {
-	if (small_screen.matches) return;
-	hamburger.classList.remove('active');
-	mobile_menu.classList.remove('active');
-	close_dropdown();
-	document.body.classList.remove('nav-open');
+// ---------- 4. dimmer: video is bright on the homepage hero, darker after you scroll past it ----------
+
+function setupDimmer() {
+    var hero = document.querySelector('.e-hero');
+    if (!hero || !document.body.classList.contains('has-hero')) {
+        return;
+    }
+    if (!('IntersectionObserver' in window)) {
+        document.body.classList.add('is-past-hero');
+        return;
+    }
+    // IntersectionObserver tells us when the hero is on the screen or not
+    var heroWatcher = new IntersectionObserver(function (entries) {
+        var heroOnScreen = entries[0].isIntersecting;
+        document.body.classList.toggle('is-past-hero', !heroOnScreen);
+    }, { threshold: 0 });
+    heroWatcher.observe(hero);
 }
 
-if (small_screen.addEventListener) {
-	small_screen.addEventListener('change', on_breakpoint_change);
-} else if (small_screen.addListener) {
-	small_screen.addListener(on_breakpoint_change); // Safari < 14
+
+// ---------- 5. fade in when you scroll ----------
+// elements with data-reveal get the class "is-in" when they come on the screen
+
+function setupReveal() {
+    var items = document.querySelectorAll('[data-reveal]');
+    if (items.length == 0) {
+        return;
+    }
+
+    // items in a group appear one after another (small delay each, max 6)
+    var groups = document.querySelectorAll('[data-reveal-group]');
+    for (var g = 0; g < groups.length; g++) {
+        var children = groups[g].querySelectorAll(':scope > [data-reveal]');
+        for (var c = 0; c < children.length; c++) {
+            children[c].style.setProperty('--i', Math.min(c, 6));
+        }
+    }
+
+    // no animation wanted (or old browser) -> show everything now
+    if (lessMotion || !('IntersectionObserver' in window)) {
+        for (var i = 0; i < items.length; i++) {
+            items[i].classList.add('is-in');
+        }
+        return;
+    }
+
+    // photos (data-reveal="image") are hidden with clip-path, and a hidden element
+    // is never "visible" to the observer, so for photos we watch the parent instead
+    var watched = new Map();   // box we watch => elements to show
+    for (var j = 0; j < items.length; j++) {
+        var item = items[j];
+        var box = item;
+        if (item.getAttribute('data-reveal') === 'image' && item.parentElement) {
+            box = item.parentElement;
+        }
+        if (!watched.has(box)) {
+            watched.set(box, []);
+        }
+        watched.get(box).push(item);
+    }
+
+    var revealWatcher = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (!entry.isIntersecting) {
+                return;
+            }
+            var toShow = watched.get(entry.target) || [];
+            toShow.forEach(function (el) {
+                el.classList.add('is-in');
+            });
+            revealWatcher.unobserve(entry.target);   // only needs to happen once
+        });
+    }, {
+        rootMargin: '0px 0px -12% 0px',   // start a little before it reaches the screen
+        threshold: 0.05
+    });
+
+    watched.forEach(function (elements, box) {
+        revealWatcher.observe(box);
+    });
 }
+
+
+// ---------- 6. menu page: filter buttons and search box ----------
+
+function setupMenuFilter() {
+    var menuBox = document.querySelector('[data-menu]');
+    if (!menuBox) {
+        return;
+    }
+    var buttons = menuBox.querySelectorAll('[data-course]');
+    var searchBox = menuBox.querySelector('[data-menu-search]');
+    var courses = menuBox.querySelectorAll('.e-course');
+    var dishes = menuBox.querySelectorAll('.e-dish');
+    var nothingFound = menuBox.querySelector('[data-menu-empty]');
+
+    var chosenCategory = 'all';
+    var searchText = '';
+
+    // hide the dishes that don't match the button and the search text
+    function updateMenu() {
+        var shownCount = 0;
+
+        for (var i = 0; i < dishes.length; i++) {
+            var dish = dishes[i];
+            var rightCategory = chosenCategory === 'all' || dish.getAttribute('data-category') === chosenCategory;
+            var name = (dish.getAttribute('data-name') || '').toLowerCase();
+            var matchesSearch = searchText == '' || name.indexOf(searchText) !== -1;
+
+            var show = rightCategory && matchesSearch;
+            dish.hidden = !show;
+            if (show) {
+                shownCount++;
+            }
+        }
+
+        // hide a course heading if all its dishes are hidden
+        for (var c = 0; c < courses.length; c++) {
+            var visibleDish = courses[c].querySelector('.e-dish:not([hidden])');
+            courses[c].hidden = !visibleDish;
+        }
+
+        if (nothingFound) {
+            nothingFound.hidden = shownCount !== 0;
+        }
+    }
+
+    // filter buttons
+    buttons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            chosenCategory = button.getAttribute('data-course');
+            buttons.forEach(function (other) {
+                if (other === button) {
+                    other.setAttribute('aria-pressed', 'true');
+                } else {
+                    other.setAttribute('aria-pressed', 'false');
+                }
+            });
+            updateMenu();
+        });
+    });
+
+    // search box (waits 120ms after typing stops)
+    if (searchBox) {
+        var typingTimer;
+        searchBox.addEventListener('input', function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function () {
+                searchText = searchBox.value.trim().toLowerCase();
+                updateMenu();
+            }, 120);
+        });
+        // pressing Enter should not reload the page
+        searchBox.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    }
+}
+
+
+// ---------- 7. underline the navigation link of the page we are on ----------
+
+function markCurrentPage() {
+    var thisPage = window.location.pathname.split('/').pop();
+    var links = document.querySelectorAll('.e-nav a[href], .e-overlay__list a[href]');
+    for (var i = 0; i < links.length; i++) {
+        var linkPage = links[i].getAttribute('href').split('/').pop().split('?')[0];
+        if (linkPage && linkPage === thisPage) {
+            links[i].setAttribute('aria-current', 'page');
+        }
+    }
+}
+
+
+// ---------- start everything ----------
+setupHeader();
+setupPhoneMenu();
+setupAccountMenu();
+setupDimmer();
+setupReveal();
+setupMenuFilter();
+markCurrentPage();

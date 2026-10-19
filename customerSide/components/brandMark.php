@@ -1,24 +1,20 @@
 <?php
-/*
- * The Ember mark: wordmark, hairline, tagline.
- *
- * Shared by the loading curtain and the homepage hero on purpose. Both render
- * the same element in the same place, so when the curtain lifts the wordmark
- * does not move by a single pixel -- the rule and the tagline simply settle in
- * around it. That is what makes the intro read as one continuous moment
- * instead of a loader followed by a separate animation.
- *
- * The mark is deliberately not a link. It used to point at this very page,
- * which raised the transition curtain for a navigation that never happened.
- *
- * Set $markVariant before including:
- *     'loader'  the curtain -- word only, the rest holds its space
- *     'hero'    the homepage -- the full mark, animated in on reveal
- */
-$markVariant = $markVariant ?? 'hero';
+// brandMark.php - the big EMBER logo (used on the homepage and on the loading screen)
+// before including this file set $markVariant to 'hero' (homepage) or 'loader' (loading screen)
+
+if (!isset($markVariant)) {
+    $markVariant = 'hero';
+}
+
+// on the homepage the logo is the main heading (h1), on the loading screen it is not
+if ($markVariant == 'hero') {
+    $markTag = 'h1';
+} else {
+    $markTag = 'span';
+}
 ?>
 <div class="brand-mark brand-mark--<?= $markVariant ?>">
-    <span class="brand-word">Ember</span>
+    <<?= $markTag ?> class="brand-word">Ember</<?= $markTag ?>>
     <span class="brand-rule"></span>
     <span class="brand-tagline">Dining &amp; Bar</span>
 </div>

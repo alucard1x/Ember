@@ -1,4 +1,5 @@
 <?php
+// logout.php - signs the staff member out
 // Start the session
 session_start();
 

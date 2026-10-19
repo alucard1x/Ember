@@ -1,58 +1,48 @@
 <?php
-// Include your database connection code here
-require_once '../config.php';
+// login.php - member login page (checks email and password in the Accounts table)
+require_once '../config.php';   // gives us $link (the database connection)
 session_start();
 
-// Define variables for email and password
-$email = $password = "";
-$email_err = $password_err = "";
+$email = "";
+$password = "";
+$email_err = "";
+$password_err = "";
 
-// Check if the form was submitted.
+// this part runs only when the form is sent
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validate email
+
+    // 1. check that both boxes are filled in
     if (empty(trim($_POST["email"]))) {
         $email_err = "Please enter your email.";
     } else {
         $email = trim($_POST["email"]);
     }
 
-    // Validate password
     if (empty(trim($_POST["password"]))) {
         $password_err = "Please enter your password.";
     } else {
         $password = trim($_POST["password"]);
     }
 
-    // Check input errors before checking authentication
+    // 2. look for the account with this email
     if (empty($email_err) && empty($password_err)) {
-        // Prepare a select statement
         $sql = "SELECT * FROM Accounts WHERE email = ?";
 
         if ($stmt = mysqli_prepare($link, $sql)) {
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "s", $param_email);
+            mysqli_stmt_bind_param($stmt, "s", $email);
 
-            // Set parameters
-            $param_email = $email;
-
-            // Attempt to execute the prepared statement
             if (mysqli_stmt_execute($stmt)) {
-                // Get the result
                 $result = mysqli_stmt_get_result($stmt);
 
-                // Check if a matching record was found.
                 if (mysqli_num_rows($result) == 1) {
-                    // Fetch the result row
                     $row = mysqli_fetch_assoc($result);
 
-                    
-                   // Verify the password
+                    // 3. check the password
                     if ($password === $row["password"]) {
-                        // Password is correct, start a new session and redirect the user to a dashboard or home page.
                         $_SESSION["loggedin"] = true;
                         $_SESSION["email"] = $email;
 
-                        // Query to get membership details
+                        // 4. find the membership of this account
                         $sql_member = "SELECT * FROM Memberships WHERE account_id = " . $row['account_id'];
                         $result_member = mysqli_query($link, $sql_member);
 
@@ -60,32 +50,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $membership_row = mysqli_fetch_assoc($result_member);
 
                             if ($membership_row) {
+                                // logged in! go to the home page
                                 $_SESSION["account_id"] = $membership_row["account_id"];
-                                header("location: ../home/home.php"); // Redirect to the home page
+                                header("location: ../home/home.php");
                                 exit;
                             } else {
-                                // No membership details found
                                 $password_err = "No membership details found for this account.";
                             }
                         } else {
-                            // Error in membership query
                             $password_err = "Error fetching membership details: " . mysqli_error($link);
                         }
                     } else {
-                        // Password is incorrect
                         $password_err = "Invalid password. Please try again.";
                     }
-
-
                 } else {
-                    // No matching records found
                     $email_err = "No account found with this email.";
                 }
             } else {
                 echo "Oops! Something went wrong. Please try again later.";
             }
 
-            // Close the statement
             mysqli_stmt_close($stmt);
         }
     }
@@ -95,96 +79,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
-    <title>Log In &mdash; Ember Dining &amp; Bar</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style>
-        
-
-
-/* Style for the container within login.php */
-.login-container {
-  padding: 50px; /* Adjust the padding as needed */
-  border-radius: 10px; /* Add rounded corners */
-  margin: 100px auto; /* Center the container horizontally */
-  max-width: 500px; /* Set a maximum width for the container */
-}
-
-
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0; /* Remove default margin */
-            background-color:black;
-             background-image: url('../image/login-background.jpg'); /* Set the background image path */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: white;
-        }
-
-        .login_wrapper {
-            width: 400px; /* Adjust the container width as needed */
-            padding: 20px;
-        }
-
-        h2 {
-            text-align: center;
-            font-family: 'Montserrat', serif;
-        }
-
-        p {
-            font-family: 'Montserrat', serif;
-        }
-
-        .form-group {
-            margin-bottom: 15px; /* Add space between form elements */
-        }
-
-        ::placeholder {
-            font-size: 12px; /* Adjust the font size as needed */
-        }
-        
-        .text-danger{
-            font-size: 13px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#14100f">
+    <title>Member Login &mdash; Ember</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- the design of the whole site -->
+    <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
+    <!-- same look as the new homepage -->
+    <link rel="stylesheet" href="../css/ember-v2.css?v=<?= @filemtime(__DIR__ . '/../css/ember-v2.css') ?>">
+    <!-- layout shared by the three sign-in pages -->
+    <link rel="stylesheet" href="../css/entrance.css?v=<?= @filemtime(__DIR__ . '/../css/entrance.css') ?>">
 </head>
-<body>
+<body class="sl-body">
 <?php $bgAssets = '../image'; include '../components/background.php'; ?>
 <?php $brandHome = '../home/home.php'; include '../components/brandLink.php'; ?>
-    <div class="login-container">
-        <h1 class="panel-title">Member Login</h1>
-    <div class="login_wrapper">
-    
-        <div class="wrapper">
-           
+<main class="sl">
+
+    <!-- left: the Ember name with what membership gives you -->
+    <section class="sl-intro">
+        <p class="sl-kicker">Members</p>
+        <a class="sl-mark" href="../home/home.php" aria-label="Ember homepage">Ember</a>
+        <span class="sl-rule" aria-hidden="true"></span>
+        <dl class="sl-meta">
+            <div><dt>Points</dt><dd>1 for every &#8377;1</dd></div>
+            <div><dt>VIP</dt><dd>1,000 points</dd></div>
+            <div><dt>Service</dt><dd>11:00 &ndash; 22:00</dd></div>
+        </dl>
+    </section>
+
+    <!-- right: the form, in the same glass panel as the homepage hero card -->
+    <section class="sl-ticket" aria-labelledby="sl-ticket-title">
+        <h1 class="sl-ticket__title" id="sl-ticket-title">Sign in</h1>
+
         <form action="login.php" method="post">
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" placeholder="Enter User Email" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
                 <span class="text-danger"><?php echo $email_err; ?></span>
             </div>
 
-           <div class="form-group">
-    <label>Password</label>
-    <input type="password" name="password" class="form-control" placeholder="Enter User Password" required>
-    <span class="text-danger"><?php echo $password_err; ?></span>
-</div>
-            <button class="btn" type="submit" name="submit" value="Login">Login</button>
-            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+                <span class="text-danger"><?php echo $password_err; ?></span>
+            </div>
+
+            <button class="btn sl-btn" type="submit" name="submit" value="Login">Sign in</button>
         </form>
 
-            <p style="margin-top:1em; color:white;">Don't have an account? <a href="register.php" style="">Proceed to Register</a></p>
-        </div>
-    </div>
-    </div>
+        <p class="sl-ticket__foot">New here? <a href="register.php">Create an account</a></p>
+    </section>
+
+</main>
+
 </body>
 </html>

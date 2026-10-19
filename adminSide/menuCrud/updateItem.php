@@ -1,5 +1,6 @@
 <?php
-session_start(); // Ensure session is started
+// updateItem.php - form to change a dish (Menu table)
+require_once __DIR__ . '/../posBackend/checkIfLoggedIn.php';   // staff only: if not logged in, go to the staff login page
 ?>
 <?php
 // Include config file
@@ -44,9 +45,6 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
 
 // Process form submission when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-   // echo "Received POST data: <pre>";
-//print_r($_POST);
-//echo "</pre>";
     // Validate and sanitize input
     $item_name = mysqli_real_escape_string($link, trim($_POST["item_name"]));
     $item_type = mysqli_real_escape_string($link, trim($_POST["item_type"]));
@@ -71,18 +69,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        
     }
     
-    /*
-     $result_tables = mysqli_query($link, $select_query_tables);
-                                $resultCheckTables = mysqli_num_rows($result_tables);
-                                if ($resultCheckTables > 0) {
-                                    while ($row = mysqli_fetch_assoc($result_tables)) {
-                                        echo '<option value="' . $row['table_id'] . '">For ' . $row['capacity'] . ' people. (Table Id: ' . $row['table_id'] . ')</option>';
-                                    }
-                                }  else {
-                                    echo '<option disabled>No tables available, please choose another time.</option>';
-                                    echo '<script>alert("No reservation tables found for the selected time. Please choose another time.");</script>';
-                                }
-     */
 
     // Close the database connection
     

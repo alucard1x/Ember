@@ -1,148 +1,273 @@
-<?php include_once('../components/header.php') ?>
-
 <?php
-// The cart is a plain [item_id => quantity] map kept in the session.
-$cart = $_SESSION['cart'] ?? [];
+// menu.php - the menu page (all dishes grouped by course) and "Your Order" (the cart)
 
-// Build the bill lines from the menu rows header.php already fetched, so no
-// extra queries are needed.
-$allItems = [];
-foreach (array_merge($mainDishes, $sides, $drinks) as $item) {
-    $allItems[$item['item_id']] = $item;
+$pageTitle = 'Menu';
+$pageDesc  = 'Tandoor and coal, dum-cooked biryani, the coast and the street — the full Ember menu.';
+include_once('../components/header.php');   // also gives us $mainDishes, $sides and $drinks
+
+
+// all dishes in one list
+$allDishes = array_merge($mainDishes, $sides, $drinks);
+
+
+// ---------- YOUR ORDER (cart) ----------
+// the cart is saved in the session like this: [item_id => quantity]
+// cart.php adds and removes items, nothing is saved in the database
+
+$cart = [];
+if (isset($_SESSION['cart'])) {
+    $cart = $_SESSION['cart'];
 }
 
+// find a dish by its id quickly
+$dishById = [];
+foreach ($allDishes as $dish) {
+    $dishById[$dish['item_id']] = $dish;
+}
+
+// one line of the bill for each dish in the cart
 $billLines = [];
-foreach ($cart as $cartItemId => $cartQty) {
-    if (isset($allItems[$cartItemId])) {
+$beforeTax = 0;
+foreach ($cart as $itemId => $quantity) {
+    if (isset($dishById[$itemId])) {
+        $price = (float) $dishById[$itemId]['item_price'];
+        $lineTotal = $price * (int) $quantity;
+
         $billLines[] = [
-            'id'       => $cartItemId,
-            'name'     => $allItems[$cartItemId]['item_name'],
-            'price'    => (float) $allItems[$cartItemId]['item_price'],
-            'quantity' => (int) $cartQty,
-            'total'    => (float) $allItems[$cartItemId]['item_price'] * (int) $cartQty,
+            'id'       => $itemId,
+            'name'     => $dishById[$itemId]['item_name'],
+            'price'    => $price,
+            'quantity' => (int) $quantity,
+            'total'    => $lineTotal,
         ];
+        $beforeTax = $beforeTax + $lineTotal;
     }
 }
-$beforeTax = array_sum(array_column($billLines, 'total'));
-$taxAmount = $beforeTax * 0.1;
+$taxAmount = $beforeTax * 0.1;          // 10% tax
 $grandTotal = $beforeTax + $taxAmount;
 
-// One menu row: name and price on top, type and the Add button beneath.
-function renderMenuItem($item) {
-?>
-        <div class="menu-item">
-          <div class="menu-item-head">
-            <span class="item-name"><?php echo $item['item_name']; ?></span>
-            <span class="item-price">&#8377;<?php echo $item['item_price']; ?></span>
-          </div>
-          <div class="menu-item-foot">
-            <span class="item_type"><?php echo $item['item_type']; ?></span>
-            <a class="add-btn" href="cart.php?add=<?php echo urlencode($item['item_id']); ?>">Add</a>
-          </div>
-        </div>
-<?php
+
+// ---------- group the dishes by course (item_type) ----------
+
+$coursesByName = [];    // course name => ['category' => ..., 'items' => [...]]
+foreach ($allDishes as $dish) {
+    $type = $dish['item_type'];
+    if (!isset($coursesByName[$type])) {
+        $coursesByName[$type] = [
+            'category' => $dish['item_category'],
+            'items' => [],
+        ];
+    }
+    $coursesByName[$type]['items'][] = $dish;
 }
 
-// One titled group of items.
-function renderMenuGroup($title, $items) {
-?>
-      <div class="menu-group">
-        <h2 class="menu-group-title"><?php echo $title; ?></h2>
-        <div class="menu-items">
-          <?php foreach ($items as $item) renderMenuItem($item); ?>
-        </div>
-      </div>
-<?php
+// the order the courses are shown on the page
+$courseOrder = [
+    'Chaat & Starters',
+    'Tandoori & Kebabs',
+    'Murg Specialities',
+    'Gosht Specialities',
+    'Machli & Jhinga',
+    'Biryani & Pulao',
+    'Rolls & Street Bites',
+    'Indian Breads & Sides',
+    'Kachumber & Salads',
+    'Mithai & Desserts',
+    'Little Maharaja',
+    'Ember Cocktails',
+    'Desi Cocktails',
+    'Sharbat & Mocktails',
+    'Fresh Juices',
+    'Indian Spirits',
+];
+
+// first the courses in the list above...
+$courses = [];
+foreach ($courseOrder as $courseName) {
+    if (isset($coursesByName[$courseName])) {
+        $courses[$courseName] = $coursesByName[$courseName];
+    }
 }
+// ...then any new course that is not in the list, in A-Z order
+$otherCourses = [];
+foreach ($coursesByName as $courseName => $course) {
+    if (!in_array($courseName, $courseOrder, true)) {
+        $otherCourses[$courseName] = $course;
+    }
+}
+ksort($otherCourses, SORT_STRING);
+foreach ($otherCourses as $courseName => $course) {
+    $courses[$courseName] = $course;
+}
+
+
+// filter buttons: database category => label on the button
+$filters = [
+    'all'          => 'All',
+    'Main Dishes'  => 'Mains',
+    'Side Snacks'  => 'Sides',
+    'Drinks'       => 'Bar',
+];
+
+// QR ordering: table.php remembers the guest's table in the session
+$orderTable = 0;
+if (isset($_SESSION['order_table'])) {
+    $orderTable = (int) $_SESSION['order_table'];
+}
+$hasTrackedOrder = isset($_SESSION['track_bill']);
 ?>
 
-<section id="projects" class="menu-page">
-    <div class="projects container">
-      <div class="projects-header">
-        <h1 class="section-title">Menu</h1>
-      </div>
+<section class="e-section" aria-labelledby="menu-heading">
+    <div class="e-shell">
 
-      <select id="menu-category" class="menu-category">
-        <option value="blue">All Items</option>
-        <option value="yellow">Main Dishes</option>
-        <option value="red">Side Dishes</option>
-        <option value="green">Drinks</option>
-      </select>
+<?php if ($orderTable > 0) { ?>
+        <!-- shown only after scanning a table's QR code -->
+        <p class="e-table-note">
+            <span class="e-table-note__dot" aria-hidden="true"></span>
+            Ordering for Table <?= $orderTable ?> &middot; your order goes straight to the kitchen
+<?php   if ($hasTrackedOrder) { ?>
+            &middot; <a href="../order/track.php">Track your order</a>
+<?php   } ?>
+        </p>
+<?php } ?>
+        <div class="e-section__head">
+            <span class="e-eyebrow e-eyebrow--ember" data-reveal>The Menu</span>
+            <!-- the number of courses is counted, not typed -->
+            <h1 class="e-display" id="menu-heading" data-reveal><?= ucfirst(ember_word(count($courses))) ?> courses,<br>one fire.</h1>
+        </div>
 
-      <div class="yellow msg">
-        <?php renderMenuGroup('Main Dishes', $mainDishes); ?>
-      </div>
+        <div data-menu>
+            <!-- filter buttons and search box (app.js makes them work) -->
+            <div class="e-menu__filter">
+<?php foreach ($filters as $value => $label) {
+        $pressed = 'false';
+        if ($value == 'all') {
+            $pressed = 'true';
+        }
+?>
+                <button type="button" data-course="<?= htmlspecialchars($value, ENT_QUOTES) ?>"
+                        aria-pressed="<?= $pressed ?>"><?= $label ?></button>
+<?php } ?>
+                <div class="e-menu__search">
+                    <label class="e-visually-hidden" for="menu-search">Search dishes</label>
+                    <input type="search" id="menu-search" data-menu-search
+                           placeholder="Search" autocomplete="off">
+                </div>
+            </div>
 
-      <div class="red msg">
-        <?php renderMenuGroup('Side Dishes', $sides); ?>
-      </div>
+<?php // one section for each course
+foreach ($courses as $type => $course) {
+        $slug = preg_replace('/[^a-z0-9]+/', '-', strtolower($type));   // e.g. "biryani-pulao"
+?>
+            <section class="e-course" aria-labelledby="course-<?= $slug ?>">
+                <div class="e-course__head">
+                    <h2 class="e-eyebrow" id="course-<?= $slug ?>"><?= htmlspecialchars($type) ?></h2>
+                    <span class="e-rule" aria-hidden="true"></span>
+                </div>
 
-      <div class="green msg">
-        <?php renderMenuGroup('Drinks', $drinks); ?>
-      </div>
+                <ul class="e-dishes">
+<?php   // one row for each dish
+        foreach ($course['items'] as $item) {
+            $note = ember_dish_note($item['item_description'], $item['item_name'], $type);
+?>
+                    <li class="e-dish"
+                        data-category="<?= htmlspecialchars($course['category'], ENT_QUOTES) ?>"
+                        data-name="<?= htmlspecialchars($item['item_name'], ENT_QUOTES) ?>">
+                        <span class="e-dish__name"><?= htmlspecialchars($item['item_name']) ?></span>
+                        <span class="e-dish__price">&#8377;<?= number_format((float) $item['item_price']) ?></span>
+                        <a class="e-dish__add" href="cart.php?add=<?= urlencode($item['item_id']) ?>">
+                            Add<span class="e-visually-hidden"> <?= htmlspecialchars($item['item_name']) ?> to your order</span>
+                        </a>
+<?php       if ($note != '') { ?>
+                        <span class="e-dish__desc"><?= htmlspecialchars($note) ?></span>
+<?php       } ?>
+                    </li>
+<?php   } ?>
+                </ul>
+            </section>
+<?php } ?>
 
-      <div class="blue msg">
-        <?php renderMenuGroup('Main Dishes', $mainDishes); ?>
-        <?php renderMenuGroup('Side Dishes', $sides); ?>
-        <?php renderMenuGroup('Drinks', $drinks); ?>
-      </div>
+            <!-- shown by app.js when the search finds nothing -->
+            <p class="e-bill__empty" data-menu-empty hidden>Nothing on the card matches that.</p>
+        </div>
     </div>
 </section>
 
-<!-- Bill Section -->
-<section id="bill">
-  <div class="bill container">
-    <div class="bill-inner">
-      <h1 class="section-title">Your <span>Order</span></h1>
+<!-- full width photo between the menu and the order -->
+<section aria-label="The grill">
+    <div class="e-plate e-plate--bleed" data-reveal="image">
+        <?php ember_picture('spit-flame', 'Flames rising from a wood fire', '100vw'); ?>
+    </div>
+</section>
 
-<?php if (empty($billLines)) { ?>
-      <p class="bill-empty">No items added yet. Use the Add button beside any dish above.</p>
+<!-- YOUR ORDER. id="bill" is needed because cart.php sends you back to menu.php#bill -->
+<section class="e-section" id="bill" aria-labelledby="order-heading">
+    <div class="e-shell">
+        <div class="e-section__head">
+            <span class="e-eyebrow e-eyebrow--ember" data-reveal>Your Order</span>
+            <h2 class="e-display" id="order-heading" data-reveal>
+<?php if (count($billLines) == 0) { ?>
+                Nothing yet.
+<?php } elseif (count($billLines) == 1) { ?>
+                1 item.
 <?php } else { ?>
-      <table class="bill-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Price</th>
-            <th>Qty</th>
-            <th>Total</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-<?php foreach ($billLines as $line) { ?>
-          <tr>
-            <td><?php echo $line['name']; ?></td>
-            <td>&#8377;<?php echo number_format($line['price'], 2); ?></td>
-            <td><?php echo $line['quantity']; ?></td>
-            <td>&#8377;<?php echo number_format($line['total'], 2); ?></td>
-            <td><a class="bill-remove" href="cart.php?remove=<?php echo urlencode($line['id']); ?>" title="Remove one">&minus;</a></td>
-          </tr>
+                <?= count($billLines) ?> items.
 <?php } ?>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="3">Total</td>
-            <td colspan="2">&#8377;<?php echo number_format($beforeTax, 2); ?></td>
-          </tr>
-          <tr>
-            <td colspan="3">Tax (10%)</td>
-            <td colspan="2">&#8377;<?php echo number_format($taxAmount, 2); ?></td>
-          </tr>
-          <tr class="bill-grand">
-            <td colspan="3">Grand Total</td>
-            <td colspan="2">&#8377;<?php echo number_format($grandTotal, 2); ?></td>
-          </tr>
-        </tfoot>
-      </table>
+            </h2>
+        </div>
 
-      <div class="bill-actions">
-        <a class="cta" href="bill.php" data-no-transition>Download Bill</a>
-        <a class="bill-clear" href="cart.php?clear=1">Clear order</a>
-      </div>
+<?php if (count($billLines) == 0) { ?>
+<?php   if ($orderTable > 0) { ?>
+        <p class="e-bill__empty" data-reveal>
+            Use Add beside any dish above, then press Send to kitchen.
+        </p>
+<?php   } else { ?>
+        <p class="e-bill__empty" data-reveal>
+            Use Add beside any dish above to start an order. It is kept to this
+            browser only &mdash; nothing is sent to the kitchen.
+        </p>
+<?php   } ?>
+<?php   if ($hasTrackedOrder) { ?>
+        <p style="margin-top: 2rem;"><a class="e-link" href="../order/track.php">Track your order</a></p>
+<?php   } ?>
+<?php } else { ?>
+        <div class="e-bill" data-reveal-group>
+<?php   foreach ($billLines as $line) { ?>
+            <div class="e-bill__row" data-reveal>
+                <span class="e-bill__name"><?= htmlspecialchars($line['name']) ?></span>
+                <span class="e-bill__qty"><?= $line['quantity'] ?> &times; &#8377;<?= number_format($line['price']) ?></span>
+                <span class="e-bill__total">&#8377;<?= number_format($line['total'], 2) ?></span>
+                <a class="e-bill__remove" href="cart.php?remove=<?= urlencode($line['id']) ?>"
+                   aria-label="Remove one <?= htmlspecialchars($line['name'], ENT_QUOTES) ?>">&minus;</a>
+            </div>
+<?php   } ?>
+
+            <div class="e-bill__sum" data-reveal>
+                <span>Subtotal</span><span>&#8377;<?= number_format($beforeTax, 2) ?></span>
+                <span>Tax (10%)</span><span>&#8377;<?= number_format($taxAmount, 2) ?></span>
+                <span class="is-grand">Total</span><span class="is-grand">&#8377;<?= number_format($grandTotal, 2) ?></span>
+            </div>
+
+            <div class="e-bill__actions" data-reveal>
+<?php   if ($orderTable > 0) { ?>
+                <!-- QR ordering: place.php saves the order and sends it to the kitchen -->
+                <form method="post" action="../order/place.php">
+                    <button class="e-cta e-cta--ember" type="submit">
+                        Send to kitchen
+                        <span class="e-cta__arrow" aria-hidden="true"></span>
+                    </button>
+                </form>
+<?php   } ?>
+                <!-- data-no-transition: bill.php downloads a PDF, so no page animation here -->
+                <a class="e-cta" href="bill.php" data-no-transition>
+                    Download bill
+                    <span class="e-cta__arrow" aria-hidden="true"></span>
+                </a>
+                <a class="e-link" href="cart.php?clear=1">Clear order</a>
+            </div>
+        </div>
 <?php } ?>
     </div>
-  </div>
 </section>
-<!-- End Bill Section -->
 
 <?php include_once('../components/footer.php'); ?>

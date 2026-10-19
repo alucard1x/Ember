@@ -1,130 +1,88 @@
 <?php
+// menu-panel.php - staff panel: Menu. Every dish grouped by course, search as you type,
+// add a dish with one short form (the dish code is made automatically), edit or delete a dish.
 session_start(); // Ensure session is started
 require_once '../posBackend/checkIfLoggedIn.php';
+include '../includes/dashHeader.php';
+require_once '../config.php';
+
+$dishes = mysqli_fetch_all(mysqli_query($link, 'SELECT * FROM Menu ORDER BY item_category, item_type, item_name'), MYSQLI_ASSOC);
+
+// the list of courses, for the "Course" box
+$courses = [];
+foreach ($dishes as $dish) {
+    $courses[$dish['item_type']] = $dish['item_category'];
+}
+
+$msg = $_GET['msg'] ?? '';
 ?>
-<?php include '../includes/dashHeader.php'; ?>
-    <style>
-        .wrapper{ width: 1300px; padding-left: 200px; padding-top: 20px  }
-    </style>
 
 <div class="wrapper">
-    <div class="container-fluid pt-5 pl-600">
-        <div class="row">
-            <div class="m-50">
-                <div class="mt-5 mb-3">
-                    <h2 class="pull-left">Items Details</h2>
-                    <a href="../menuCrud/createItem.php" class="btn btn-outline-dark"><i class="fa fa-plus"></i> Add Item</a>
-                </div>
-                <div class="mb-3">
-                    <form method="POST" action="#">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <select name="search" id="search" class="form-control">
-                                    <option value="">Select Item Type or Item Category</option>      
-                                    <option value="Main Dishes">Main Dishes</option>
-                                    <option value="Side Snacks">Side Snacks</option>
-                                    <option value="Drinks">Drinks</option>                                    
-                                    <option value="Tandoori & Kebabs">Tandoori & Kebabs</option>
-                                    <option value="Murg Specialities">Murg Specialities</option>
-                                    <option value="Gosht Specialities">Gosht Specialities</option>
-                                    <option value="Machli & Jhinga">Machli & Jhinga</option>
-                                    <option value="Rolls & Street Bites">Rolls & Street Bites</option>
-                                    <option value="Biryani & Pulao">Biryani & Pulao</option>
-                                    <option value="Indian Breads & Sides">Indian Breads & Sides</option>
-                                    <option value="Chaat & Starters">Chaat & Starters</option>
-                                    <option value="Kachumber & Salads">Kachumber & Salads</option>
-                                    <option value="Indian Spirits">Indian Spirits</option>
-                                    <option value="Desi Cocktails">Desi Cocktails</option>
-                                    <option value="Ember Cocktails">Ember Cocktails</option>
-                                    <option value="Mithai & Desserts">Mithai & Desserts</option>
-                                    <option value="Little Maharaja">Little Maharaja</option>
-                                    <option value="Fresh Juices">Fresh Juices</option>
-                                    <option value="Sharbat & Mocktails">Sharbat & Mocktails</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-dark">Search</button>
-                            </div>
-                            <div class="col" style="text-align: right;" >
-                                <a href="menu-panel.php" class="btn btn-light">Show All</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <?php
-                // Include config file
-                require_once "../config.php";
-
-                if (isset($_POST['search'])) {
-                    if (!empty($_POST['search'])) {
-                        $search = mysqli_real_escape_string($link, $_POST['search']);
-
-                        $sql = "SELECT * FROM Menu WHERE item_type LIKE '%$search%' OR item_category LIKE '%$search%' OR item_name LIKE '%$search%' OR item_id LIKE '%$search%' ORDER BY item_id;";
-                    } else {
-                        // Default query to fetch all items
-                        $sql = "SELECT * FROM Menu ORDER BY item_id;";
-                    }
-                } else {
-                    // Default query to fetch all items
-                    $sql = "SELECT * FROM Menu ORDER BY item_id;";
-                }
-
-                if ($result = mysqli_query($link, $sql)) {
-                    if (mysqli_num_rows($result) > 0) {
-                        echo '<div class="table-scroll"><table class="table table-bordered table-striped">';
-                        echo "<thead>";
-                        echo "<tr>";
-                        echo "<th>Item ID</th>";
-                        echo "<th>Name</th>";
-                        echo "<th>Type</th>";
-                        echo "<th>Category</th>";
-                        echo "<th>Price</th>";
-                        echo "<th>Description</th>";
-                        echo "<th>Edit</th>";
-                        //echo "<th>Delete</th>";
-                        echo "</tr>";
-                        echo "</thead>";
-                        echo "<tbody>";
-                        while ($row = mysqli_fetch_array($result)) {
-                            echo "<tr>";
-                            echo "<td>" . $row['item_id'] . "</td>";
-                            echo "<td>" . $row['item_name'] . "</td>";
-                            echo "<td>" . $row['item_type'] . "</td>";
-                            echo "<td>" . $row['item_category'] . "</td>";
-                            echo "<td>" . $row['item_price'] . "</td>";
-                            echo "<td>" . $row['item_description'] . "</td>";
-                            echo "<td>";
-                            // Modify link with the pencil icon
-                            echo '<a href="../menuCrud/updateItemVerify.php?id='. $row['item_id'] .'" title="Modify Record" data-toggle="tooltip"'
-                                    . 'onclick="return confirm(\'Admin permission Required!\n\nAre you sure you want to Edit this Item?\')">'
-                             . '<i class="fa fa-pencil" aria-hidden="true"></i></a>';
-                            echo "</td>";
-
-                            /*echo "<td>";
-                            $deleteSQL = "DELETE FROM items WHERE item_id = '" . $row['item_id'] . "';";
-                            echo '<a href="../menuCrud/deleteMenuVerify.php?id='. $row['item_id'] .'" title="Delete Record" data-toggle="tooltip" '
-                                    . 'onclick="return confirm(\'Admin permission Required!\n\nAre you sure you want to delete this Item?\n\nThis will alter other modules related to this Item!\n\nYou see unwanted changes in bills.\')"><span class="fa fa-trash text-black"></span></a>';
-                            echo "</td>";
-                             */
-                            echo "</tr>";
-                        }
-                        echo "</tbody>";
-                        echo "</table></div>";
-                        // Free result set
-                        mysqli_free_result($result);
-                    } else {
-                        echo '<div class="alert alert-danger"><em>No records were found.</em></div>';
-                    }
-                } else {
-                    echo "Oops! Something went wrong. Please try again later.";
-                }
-
-                // Close connection
-                mysqli_close($link);
-                ?>
+    <div class="container-fluid">
+        <div class="pg-head">
+            <div>
+                <h2>Menu</h2>
+                <p class="pg-sub"><?= count($dishes) ?> dishes in <?= count($courses) ?> courses. Changes show on the website straight away (and the Price Time Machine remembers old prices).</p>
             </div>
+            <button type="button" class="btn btn-dark" data-open="#add-dish">+ Add dish</button>
         </div>
+
+<?php if ($msg == 'added') { ?>
+        <div class="pg-msg">Dish added. It is on the website menu now.</div>
+<?php } elseif ($msg == 'error') { ?>
+        <div class="pg-msg is-error">Please fill in the name, course, category and a price above 0.</div>
+<?php } ?>
+
+        <form class="pg-add" id="add-dish" method="post" action="../menuCrud/addDish.php" <?= $msg == 'error' ? '' : 'hidden' ?>>
+            <h3>New dish</h3>
+            <div class="pg-fields">
+                <div><label>Dish name</label><input type="text" name="item_name" class="form-control" required></div>
+                <div><label>Course</label>
+                    <input type="text" name="item_type" class="form-control" list="course-list" placeholder="e.g. Biryani &amp; Pulao" required>
+                    <datalist id="course-list">
+<?php foreach ($courses as $course => $category) { ?>
+                        <option value="<?= htmlspecialchars($course) ?>">
+<?php } ?>
+                    </datalist></div>
+                <div><label>Category</label>
+                    <select name="item_category" class="form-control" required>
+                        <option>Main Dishes</option><option>Side Snacks</option><option>Drinks</option>
+                    </select></div>
+                <div><label>Price (&#8377;)</label><input type="number" name="item_price" min="1" step="1" class="form-control" required></div>
+                <div><label>Short description (optional)</label><input type="text" name="item_description" class="form-control"></div>
+            </div>
+            <button type="submit" class="btn btn-success">Save dish</button>
+        </form>
+
+        <div class="pg-tools">
+            <input type="search" class="form-control pg-search" placeholder="Search dish or course…" data-filter="#menu-list">
+            <span class="pg-count" data-count><?= count($dishes) ?> dishes</span>
+        </div>
+
+        <div class="table-scroll"><table class="table" id="menu-list">
+            <thead><tr><th>Code</th><th>Dish</th><th>Course</th><th>Category</th><th class="pg-num">Price</th><th></th></tr></thead>
+            <tbody>
+<?php foreach ($dishes as $d) { ?>
+                <tr>
+                    <td><?= htmlspecialchars($d['item_id']) ?></td>
+                    <td><?= htmlspecialchars($d['item_name']) ?>
+<?php   if ($d['item_description'] != '') { ?>
+                        <div class="text-muted small"><?= htmlspecialchars($d['item_description']) ?></div>
+<?php   } ?>
+                    </td>
+                    <td><?= htmlspecialchars($d['item_type']) ?></td>
+                    <td><?= htmlspecialchars($d['item_category']) ?></td>
+                    <td class="pg-num">&#8377;<?= number_format((float) $d['item_price']) ?></td>
+                    <td class="pg-actions">
+                        <a href="../menuCrud/updateItemVerify.php?id=<?= urlencode($d['item_id']) ?>">Edit</a>
+                        <a href="../menuCrud/deleteMenuVerify.php?id=<?= urlencode($d['item_id']) ?>">Delete</a>
+                    </td>
+                </tr>
+<?php } ?>
+            </tbody>
+        </table></div>
     </div>
 </div>
 
+<script src="../js/staffPages.js"></script>
 <?php include '../includes/dashFooter.php'; ?>

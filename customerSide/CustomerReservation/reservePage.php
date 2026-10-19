@@ -1,7 +1,6 @@
 <?php
-require_once '../config.php';
-
-// Start the session
+// reservePage.php - the reservation page: "Search for Time" (left) and "Make Reservation" (right)
+require_once '../config.php';   // gives us $link
 session_start();
 ?>
 
@@ -11,125 +10,34 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-
-    <title>Reservations &mdash; Ember Dining &amp; Bar</title>
-    <style>
-        body {
-            font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #f3efec;
-            display: block;
-            min-height: 100vh;
-            padding: 20px 20px 60px;
-        }
-        .reserve-container {
-            max-width: 900px;
-        }
-        .reserve-title {
-            font-size: 2.6rem;
-            font-weight: 300;
-            letter-spacing: 0.35rem;
-            text-transform: uppercase;
-            text-align: center;
-            margin-bottom: 6px;
-        }
-        .reserve-title::after {
-            content: '';
-            display: block;
-            width: 54px;
-            height: 1px;
-            margin: 22px auto 44px;
-            background-color: #b1462f;
-        }
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 48px;
-        }
-        .column {
-            flex: 1 1 320px;
-            min-width: 0;
-            padding: 0;
-            text-align: left;
-            width: auto;
-        }
-        .column h2 {
-            font-size: 1.3rem;
-            font-weight: 400;
-            letter-spacing: 0.3rem;
-            text-transform: uppercase;
-            color: #b1462f;
-            padding-bottom: 12px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-        }
-        .reserve-container label,
-        .reserve-container .form-label {
-            display: block;
-            font-size: 1.1rem;
-            letter-spacing: 0.18rem;
-            text-transform: uppercase;
-            color: #b9aea8;
-            margin-bottom: 8px;
-        }
-        .reserve-container .form-control {
-            width: 100%;
-            max-width: 100%;
-            padding: 11px 14px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #f3efec;
-            background-color: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 0;
-            box-shadow: none;
-        }
-        .reserve-container .form-control:focus {
-            outline: none;
-            border-color: #b1462f;
-            background-color: rgba(255, 255, 255, 0.09);
-            color: #f3efec;
-            box-shadow: none;
-        }
-        .reserve-container option {
-            color: #14100f;
-        }
-        .reserve-container .btn {
-            display: inline-block;
-            padding: 10px 26px;
-            font-size: 1.2rem;
-            letter-spacing: 0.22rem;
-            text-transform: uppercase;
-            color: #f3efec;
-            background-color: transparent;
-            border: 1px solid #b1462f;
-            border-radius: 0;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .reserve-container .btn:hover {
-            background-color: #b1462f;
-            color: #ffffff;
-        }
-        @media only screen and (max-width: 767px) {
-            body { padding-top: 20px; }
-            .row { gap: 28px; }
-        }
-    </style>
+    <meta name="theme-color" content="#14100f">
+    <title>Reservations &mdash; Ember</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- the design of the whole site -->
+    <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
+    <!-- same look as the new homepage -->
+    <link rel="stylesheet" href="../css/ember-v2.css?v=<?= @filemtime(__DIR__ . '/../css/ember-v2.css') ?>">
 </head>
 <body>
 <?php $bgAssets = '../image'; include '../components/background.php'; ?>
 <?php $brandHome = '../home/home.php'; include '../components/brandLink.php'; ?>
     <?php
-        $reservationStatus = $_GET['reservation'] ?? null;
+        // insertReservation.php sends us back here with ?reservation=success
+        // -> show a message and open the receipt
         $message = '';
-        if ($reservationStatus === 'success') {
+        if (isset($_GET['reservation']) && $_GET['reservation'] === 'success') {
             $message = "Reservation successful";
-            $reservation_id = $_GET['reservation_id'] ?? null;
+            $reservation_id = null;
+            if (isset($_GET['reservation_id'])) {
+                $reservation_id = $_GET['reservation_id'];
+            }
             echo '<script>alert("Table Successfully Reserved. Click OK to view your reservation receipt."); window.location.href = "reservationReceipt.php?reservation_id=' . $reservation_id . '";</script>';
-
         }
-        $head_count = (int)($_GET['head_count'] ?? 1);
+        // insertReservation.php found the table already booked (someone else was faster)
+        if (isset($_GET['reservation']) && $_GET['reservation'] === 'taken') {
+            echo '<script>alert("Sorry, that table was just booked by someone else. Please choose another table or time.");</script>';
+        }
     ?>
     <div class="member-info"></div>
     <div class="reserve-container">
@@ -139,7 +47,7 @@ session_start();
             <div class="column">
                 <div id="Search Table">
                     <h2>Search for Time</h2>
-                 
+                    <!-- LEFT FORM: goes to availability.php, which finds the booked tables -->
                     <form id="reservation-form" method="GET" action="availability.php"><br>
                         <div class="form-group">
                         <label for="reservation_date" style="">Select Date</label><br>
@@ -149,12 +57,11 @@ session_start();
                         <label for="reservation_time" style="">Available Reservation Times</label>
                         <div id="availability-table">
                             <?php
+                            // one time every hour from 10:00:00 to 20:00:00
                             $availableTimes = array();
                             for ($hour = 10; $hour <= 20; $hour++) {
-                                for ($minute = 0; $minute < 60; $minute += 60) {
-                                    $time = sprintf('%02d:%02d:00', $hour, $minute);
-                                    $availableTimes[] = $time;
-                                }
+                                $time = sprintf('%02d:00:00', $hour);
+                                $availableTimes[] = $time;
                             }
                             echo '<select name="reservation_time" id="reservation_time" style="width:10em;" class="form-control" >';
                             echo '<option value="" selected disabled>Select a Time</option>';
@@ -162,6 +69,7 @@ session_start();
                                 echo "<option  value='$time'>$time</option>";
                             }
                             echo '</select>';
+                            // optional message in the url
                             if (isset($_GET['message'])) {
                                 $message = $_GET['message'];
                                 echo "<p>$message</p>";
@@ -179,6 +87,7 @@ session_start();
             <div class="column right-column">
                 <div id="insert-reservation-into-table">
                     <h2>Make Reservation</h2>
+                    <!-- RIGHT FORM: goes to insertReservation.php, which saves the booking -->
                     <form id="reservation-form" method="POST" action="insertReservation.php">
                         <br>
                         <div class="form-group">
@@ -186,8 +95,15 @@ session_start();
                             <input class="form-control" type="text" id="customer_name" name="customer_name" required>
                         </div>
                         <?php
-                        $defaultReservationDate = $_GET['reservation_date'] ?? date("Y-m-d");
-                        $defaultReservationTime = $_GET['reservation_time'] ?? "13:00:00";
+                        // the date and time chosen in the left form (or today, 13:00)
+                        $defaultReservationDate = date("Y-m-d");
+                        if (isset($_GET['reservation_date'])) {
+                            $defaultReservationDate = $_GET['reservation_date'];
+                        }
+                        $defaultReservationTime = "13:00:00";
+                        if (isset($_GET['reservation_time'])) {
+                            $defaultReservationTime = $_GET['reservation_time'];
+                        }
                         ?>
                    
                         <div class="form-group " >
@@ -203,11 +119,27 @@ session_start();
                             <select class="form-control" name="table_id" id="table_id_reserve" style="width:10em;" required>
                                 <option value="" selected disabled>Select a Table</option>
                                 <?php
-                                $table_id_list = $_GET['reserved_table_id'] ?? '';
-                                $head_count = (int)($_GET['head_count'] ?? 1);
-                                // array_filter drops the empty string explode() returns for an empty list,
-                                // otherwise the query below becomes "NOT IN ()" and is a syntax error
-                                $reserved_table_ids = array_map('intval', array_filter(array_map('trim', explode(',', $table_id_list)), 'strlen'));
+                                // booked tables from availability.php, like "3,7,12"
+                                $table_id_list = '';
+                                if (isset($_GET['reserved_table_id'])) {
+                                    $table_id_list = $_GET['reserved_table_id'];
+                                }
+                                $head_count = 1;
+                                if (isset($_GET['head_count'])) {
+                                    $head_count = (int) $_GET['head_count'];
+                                }
+
+                                // turn "3,7,12" into a list of numbers [3, 7, 12]
+                                // (empty parts are skipped, otherwise the SQL would be "NOT IN ()" which is an error)
+                                $reserved_table_ids = array();
+                                foreach (explode(',', $table_id_list) as $part) {
+                                    $part = trim($part);
+                                    if ($part !== '') {
+                                        $reserved_table_ids[] = intval($part);
+                                    }
+                                }
+
+                                // all tables big enough, except the booked ones
                                 $select_query_tables = "SELECT * FROM Restaurant_Tables WHERE capacity >= '$head_count'";
                                 if (!empty($reserved_table_ids)) {
                                     $reserved_table_ids_string = implode(',', $reserved_table_ids);
@@ -240,6 +172,7 @@ session_start();
     </div>
 
     <script>
+        // copy the chosen date into the date box (both boxes have the same id, so this finds the first one)
         const viewDateInput = document.getElementById("reservation_date");
         const makeDateInput = document.getElementById("reservation_date");
 

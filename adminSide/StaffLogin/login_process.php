@@ -1,5 +1,6 @@
 <?php
-/* defaults so the page also renders on a direct visit */
+// login_process.php - checks the staff login (Accounts + Staffs tables) and shows success or error
+// default values, so the page also works when you open it directly
 $message = $message ?? '';
 $iconClass = $iconClass ?? '';
 $cardClass = $cardClass ?? '';
@@ -40,20 +41,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($staff_result->num_rows === 1) {
             $staff_row = $staff_result->fetch_assoc();
             $logged_staff_name = $staff_row['staff_name']; // Get staff_name
-            //$message = "Login successful.<br> Welcome to Ember Staff Panel.";
-            //$iconClass = "fa-check-circle";
-            //$cardClass = "alert-success";
-            //$bgColor = "#D4F4DD";
-            //$direction = "../panel/pos-panel.php"; // Success, go to staff panel
-            
+
             // After successful login, store staff_name in session
             $_SESSION['logged_account_id'] = $provided_account_id;
             $_SESSION['logged_staff_name'] = $logged_staff_name;
-            
+
             //Directly go to the pos panel upon successful login
             header("Location: ../panel/pos-panel.php");
             exit;
-            
+
         } else {
             // Staff ID not found in Staffs table
             $message = "Staff ID not found.<br>Please try again to choose a correct Staff ID.";
@@ -61,8 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $cardClass = "alert-danger";
             $bgColor = "#FFA7A7"; // Custom background color for error
             $direction = "login.php"; // Fail, go back to login
-            }      
-            
+            }
+
         } else {
             $message = "Incorrect password.<br>Please try again to type your password.";
             $iconClass = "fa-times-circle";
@@ -89,7 +85,7 @@ $link->close();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet">
     <style>
-        /* Your custom CSS styles for the success message card here */
+        /* the message card */
         body {
             text-align: center;
             padding: 40px 0;
@@ -122,23 +118,23 @@ $link->close();
             display: inline-block;
             margin: 0 auto;
         }
-        /* Additional CSS styles based on success/error message */
+        /* green card for success, red card for error */
         .alert-success {
-            /* Customize the styles for the success message card */
+
             background-color: <?php echo $bgColor; ?>;
         }
         .alert-success i {
-            color: #5DBE6F; /* Customize the checkmark icon color for success */
+            color: #5DBE6F;
         }
         .alert-danger {
-            /* Customize the styles for the error message card */
-            background-color: #FFA7A7; /* Custom background color for error */
+
+            background-color: #FFA7A7;
         }
         .alert-danger i {
-            color: #F25454; /* Customize the checkmark icon color for error */
+            color: #F25454;
         }
         .custom-x {
-            color: #F25454; /* Customize the "X" symbol color for error */
+            color: #F25454;
             font-size: 100px;
             line-height: 200px;
         }
@@ -150,7 +146,7 @@ $link->close();
         .alert-icon {
             padding-bottom: 20px;
         }
-    
+
     </style>
 </head>
 <body>
@@ -169,10 +165,10 @@ $link->close();
     <div style="text-align: center; margin-top: 20px;">Redirecting back in <span id="countdown">3</span></div>
 
     <script>
-        //Declare the direction of login success and fail 
+        // where to go after the message
         var direction = "<?php echo $direction; ?>";
-        
-        // Function to show the message card as a pop-up and start the countdown
+
+        // show the message card and count down 3, 2, 1
         function showPopup() {
             var messageCard = document.querySelector(".card");
             messageCard.style.display = "block";
@@ -189,20 +185,20 @@ $link->close();
             }, 1000); // 1000 milliseconds = 1 second
         }
 
-        // Show the message card and start the countdown when the page is loaded
+        // start when the page has loaded
         window.onload = showPopup;
 
-        // Function to hide the message card after a delay
+        // hide the card after a few seconds
         function hidePopup() {
             var messageCard = document.querySelector(".card");
             messageCard.style.display = "none";
-            // Redirect to another page after hiding the pop-up (adjust the delay as needed)
+            // then go to the next page
             setTimeout(function () {
-                window.location.href = direction; // Replace with your desired URL
+                window.location.href = direction;
             }, 3000); // 3000 milliseconds = 3 seconds
         }
 
-        // Hide the message card after 3 seconds (adjust the delay as needed)
+        // hide the card after 3 seconds
         setTimeout(hidePopup, 3000);
     </script>
 </body>

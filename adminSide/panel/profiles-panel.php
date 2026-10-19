@@ -1,151 +1,113 @@
 <?php
+// profiles-panel.php - staff panel: Member Profiles. Pick a member from the list to see
+// how often they come, how much they spend, and their favourite dishes.
 session_start(); // Ensure session is started
 require_once '../posBackend/checkIfLoggedIn.php';
-include '../includes/dashHeader.php'; 
+include '../includes/dashHeader.php';
 require_once '../config.php';
 
+$members = mysqli_fetch_all(mysqli_query($link, 'SELECT member_id, member_name FROM Memberships ORDER BY member_name'), MYSQLI_ASSOC);
+
+$memberId = (int) ($_GET['member_id'] ?? 0);
+if ($memberId == 0 && count($members) > 0) {
+    $memberId = (int) $members[0]['member_id'];
+}
+
+// the member and their account
+$stmt = $link->prepare('SELECT m.member_name, m.points, a.email, a.phone_number, a.register_date
+                        FROM Memberships AS m LEFT JOIN Accounts AS a ON a.account_id = m.account_id
+                        WHERE m.member_id = ?');
+$stmt->bind_param('i', $memberId);
+$stmt->execute();
+$member = $stmt->get_result()->fetch_assoc();
+
+// visits, money spent and last visit (paid bills)
+$stmt = $link->prepare('SELECT COUNT(DISTINCT b.bill_id) AS visits,
+                               COALESCE(SUM(bi.quantity * m.item_price), 0) * 1.1 AS spent,
+                               MAX(b.bill_time) AS last_visit
+                        FROM Bills AS b
+                        LEFT JOIN Bill_Items AS bi ON bi.bill_id = b.bill_id
+                        LEFT JOIN Menu AS m ON m.item_id = bi.item_id
+                        WHERE b.member_id = ? AND b.payment_time IS NOT NULL');
+$stmt->bind_param('i', $memberId);
+$stmt->execute();
+$stats = $stmt->get_result()->fetch_assoc();
+
+// favourite dishes
+$stmt = $link->prepare('SELECT m.item_name, SUM(bi.quantity) AS times
+                        FROM Bill_Items AS bi
+                        JOIN Bills AS b ON b.bill_id = bi.bill_id
+                        JOIN Menu AS m ON m.item_id = bi.item_id
+                        WHERE b.member_id = ?
+                        GROUP BY m.item_id, m.item_name
+                        ORDER BY times DESC
+                        LIMIT 8');
+$stmt->bind_param('i', $memberId);
+$stmt->execute();
+$favourites = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$most = 1;
+foreach ($favourites as $f) {
+    $most = max($most, (int) $f['times']);
+}
 ?>
 
-
-    
-
-
-
-<div class="container-fluid">
-    
-    <div class="row">
-        
-        <div class="col-md-6 order-md-1  " style="margin-top: 2rem;">
-            <h2 class="pull-left">Search Member</h2>
-            <form method="get" action="#">
-                <div class="row">
-                    <div class="col-md-6">
-                        <input required type="text" id="member_id" style="width:150px" name="member_id" class="form-control" placeholder="Enter Member ID">
-                    </div>
-                    <div class="col-md-6">
-                        <button type="submit"  class="btn btn-dark">Search</button>
-                    </div> 
-                </div>
-            </form><br>
-            
-            <?php
-            require_once '../config.php';
-            $currentMonthStart = date('Y-m-01');
-            $currentMonthEnd = date('Y-m-t');
-
-            // Get the current month and year in the format 'YYYY-MM'
-            $currentMonth = date('Y-m');
-
-            $memberId = isset($_GET['member_id']) ? (int)$_GET['member_id'] : 1;
-            // Get member's most ordered items
-            $mostOrderedItemsQuery = "SELECT Menu.item_name, SUM(Bill_Items.quantity) AS order_count
-                                      FROM Bill_Items
-                                      INNER JOIN Menu ON Bill_Items.item_id = Menu.item_id
-                                      INNER JOIN Bills ON Bill_Items.bill_id = Bills.bill_id
-                                      WHERE Bills.member_id = $memberId
-                                      GROUP BY Bill_Items.item_id
-                                      ORDER BY order_count DESC";
-            $mostOrderedItemsResult = mysqli_query($link, $mostOrderedItemsQuery);
-            // Check if any results were returned
-            if(mysqli_num_rows($mostOrderedItemsResult) == 0) {
-                echo "Member ID not found.";
-            }
-            else {
-            ?>          
-            <h3>Showing Member ID - <?php echo $memberId; ?></h3>
-            <h3>Most Ordered Items - (All Time)</h3>
-            <div class="table-scroll"><table class="table ">
-                <thead>
-                    <tr>
-                        <th>Item Name</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = mysqli_fetch_assoc($mostOrderedItemsResult)) : ?>
-                        <tr>
-                            <td><?php echo $row['item_name']; ?></td>
-                            <td><?php echo $row['order_count']; ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table></div>
-            <?php } ?>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-10 order-md-2" style="margin-top: 2rem;">
-        <div class="container-fluid pt-5  row">
-            <h3>Top 5 Favourites - (All Time)</h3>
-            <div class="chart-holder">
-                <canvas id="mostOrderedItemsChart"></canvas>
+<div class="wrapper">
+    <div class="container-fluid">
+        <div class="pg-head">
+            <div>
+                <h2>Member Profiles</h2>
+                <p class="pg-sub">Choose a member to see their visits and favourite dishes.</p>
             </div>
         </div>
+
+        <form method="get" class="pg-tools">
+            <select name="member_id" class="form-control pg-search" onchange="this.form.submit()">
+<?php foreach ($members as $m) { ?>
+                <option value="<?= (int) $m['member_id'] ?>"<?= $m['member_id'] == $memberId ? ' selected' : '' ?>><?= htmlspecialchars($m['member_name']) ?> &middot; #<?= (int) $m['member_id'] ?></option>
+<?php } ?>
+            </select>
+        </form>
+
+<?php if (!$member) { ?>
+        <p class="text-muted">No member selected.</p>
+<?php } else { ?>
+        <div class="rv-cards">
+            <div class="rv-card"><span class="pg-label">Member</span><span class="rv-money"><?= htmlspecialchars($member['member_name']) ?></span>
+                <span class="rv-small"><?= htmlspecialchars((string) $member['email']) ?> &middot; <?= htmlspecialchars((string) $member['phone_number']) ?></span></div>
+            <div class="rv-card"><span class="pg-label">Points</span><span class="rv-money"><?= number_format((int) $member['points']) ?></span>
+                <span class="rv-small"><?= $member['points'] >= 1000 ? 'VIP member' : (1000 - $member['points']) . ' points to VIP' ?></span></div>
+            <div class="rv-card"><span class="pg-label">Visits</span><span class="rv-money"><?= (int) $stats['visits'] ?></span>
+                <span class="rv-small">Last visit: <?= $stats['last_visit'] ? date('j M Y', strtotime($stats['last_visit'])) : '—' ?></span></div>
+            <div class="rv-card"><span class="pg-label">Total spent</span><span class="rv-money">&#8377;<?= number_format((float) $stats['spent']) ?></span>
+                <span class="rv-small">including tax</span></div>
+        </div>
+
+        <div class="rv-box">
+            <h3>Favourite dishes</h3>
+<?php   if (count($favourites) == 0) { ?>
+            <p class="text-muted">This member has not ordered yet.</p>
+<?php   } ?>
+<?php   foreach ($favourites as $f) { ?>
+            <div class="rv-method">
+                <span class="rv-method__name"><?= htmlspecialchars($f['item_name']) ?></span>
+                <div class="rp-bar"><span style="width: <?= round($f['times'] / $most * 100) ?>%"></span></div>
+                <span class="pg-num"><?= (int) $f['times'] ?> times</span>
+            </div>
+<?php   } ?>
+        </div>
+<?php } ?>
     </div>
 </div>
 
+<style>
+    .rv-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.3rem; }
+    .rv-card, .rv-box { background: var(--ink-700); border: 1px solid var(--line); padding: 1.1rem 1.2rem; }
+    .rv-box h3 { font-size: 1.05rem; margin: 0 0 1rem; }
+    .rv-money { display: block; font-family: var(--brand-font); font-size: 1.5rem; color: var(--text); margin-top: 0.2rem; }
+    .rv-small { font-size: 0.8rem; color: var(--text-faint); }
+    .rv-method { display: grid; grid-template-columns: minmax(10rem, 16rem) 1fr 6rem; align-items: center; gap: 1rem; margin-bottom: 0.7rem; }
+    .rp-bar { height: 8px; background: rgba(255, 255, 255, 0.06); }
+    .rp-bar span { display: block; height: 100%; background: linear-gradient(90deg, #b1462f, #e0784f); }
+</style>
 
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Get data for the donut chart
-    <?php
-    $chartLabels = [];
-    $chartData = [];
-
-    $chartItemsResult = mysqli_query($link, $mostOrderedItemsQuery);
-    $itemCount = 0;
-
-    while ($row = mysqli_fetch_assoc($chartItemsResult)) {
-        if ($itemCount >= 5) {
-            break;
-        }
-        array_push($chartLabels, $row['item_name']);
-        array_push($chartData, $row['order_count']);
-        $itemCount++;
-    }
-    ?>
-
-    // Create the donut chart
-    var ctx = document.getElementById('mostOrderedItemsChart');
-    
-    var mostOrderedItemsChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: <?php echo json_encode($chartLabels); ?>,
-            datasets: [{
-                data: <?php echo json_encode($chartData); ?>,
-                backgroundColor: EMBER_CHART.colors,
-                borderColor: '#14100f',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'right',
-                    labels: {
-                        color: '#b9aea8',
-                        font: { family: 'Montserrat', size: 12 },
-                        boxWidth: 14,
-                        padding: 14
-                    }
-                }
-            },
-            // Chart.js 2 read the legend from the top level; kept for safety.
-            legend: {
-                display: true,
-                position: 'right',
-                labels: { fontColor: '#b9aea8' }
-            }
-        }
-    });
-</script>
-
-
-
-<?php include '../includes/dashFooter.php';  // Include your footer file here ?>
+<?php include '../includes/dashFooter.php'; ?>

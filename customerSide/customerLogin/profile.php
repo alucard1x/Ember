@@ -1,24 +1,23 @@
 <?php
-// Include your database connection code here
-require_once '../config.php';
-$conn = $link; // config.php exposes the connection as $link
-
-// Check if the user is logged in
+// profile.php - shows the signed-in member's details (Memberships + Accounts tables)
+require_once '../config.php';   // gives us $link
 session_start();
+
+// only for signed-in members
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: login.php'); // Redirect to the login page if not logged in
+    header('Location: login.php');
     exit;
 }
 
-// Fetch the user's profile information
 $user_id = $_SESSION['account_id'];
 
+// get the name and points (Memberships) and email, phone, date (Accounts)
 $query = "SELECT m.member_name, m.points, a.email, a.phone_number, a.register_date
           FROM Memberships AS m
           INNER JOIN Accounts AS a ON m.account_id = a.account_id
           WHERE m.account_id = ?";
 
-$stmt = $conn->prepare($query);
+$stmt = $link->prepare($query);
 $stmt->bind_param('i', $user_id);
 
 if ($stmt->execute()) {
@@ -26,12 +25,10 @@ if ($stmt->execute()) {
     $row = $result->fetch_assoc();
 } else {
     echo 'Error: ' . $stmt->error;
-    // Handle the error gracefully
 }
 
-// Close the database connection
 $stmt->close();
-$conn->close();
+$link->close();
 ?>
 
 <!DOCTYPE html>
@@ -39,46 +36,14 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile &mdash; Ember Dining &amp; Bar</title>
-    <style>
-        body {
-            font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .profile-card {
-            max-width: 460px;
-        }
-        .profile-card h2 {
-            font-weight: 400;
-            letter-spacing: 0.25rem;
-            text-transform: uppercase;
-            margin-bottom: 24px;
-        }
-        .profile-card p {
-            margin: 10px 0;
-            color: #ddd5d0;
-        }
-        .profile-card .label {
-            display: inline-block;
-            min-width: 130px;
-            color: #b9aea8;
-        }
-        .profile-card a {
-            display: inline-block;
-            margin-top: 26px;
-            margin-right: 14px;
-            padding: 10px 26px;
-            font-size: 13px;
-            letter-spacing: 0.25rem;
-            text-transform: uppercase;
-            text-decoration: none;
-            color: #f3efec;
-            border: 1px solid #b1462f;
-        }
-        .profile-card a:hover {
-            background-color: #b1462f;
-            color: #ffffff;
-        }
-    </style>
+    <meta name="theme-color" content="#14100f">
+    <title>My Profile &mdash; Ember</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- the design of the whole site -->
+    <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
+    <!-- same look as the new homepage -->
+    <link rel="stylesheet" href="../css/ember-v2.css?v=<?= @filemtime(__DIR__ . '/../css/ember-v2.css') ?>">
 </head>
 <body class="has-site-panel">
 <?php $bgAssets = '../image'; include '../components/background.php'; ?>

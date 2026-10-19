@@ -1,8 +1,14 @@
 <?php
+// header.php - top part of every customer page (head, header, navigation, phone menu)
+// a page can set $pageTitle and $pageDesc before including this file
+
 session_start();
 
-require_once '../config.php';
+require_once '../config.php';            // database connection ($link)
+require_once __DIR__ . '/media.php';     // helper functions
 
+
+// ---------- get the menu from the database (menu.php uses these 3 lists) ----------
 
 $sqlmainDishes = "SELECT * FROM Menu WHERE item_category = 'Main Dishes' ORDER BY item_type; ";
 $resultmainDishes = mysqli_query($link, $sqlmainDishes);
@@ -17,8 +23,75 @@ $resultsides = mysqli_query($link, $sqlsides);
 $sides = mysqli_fetch_all($resultsides, MYSQLI_ASSOC);
 
 
-// The signed-in member's name, points and VIP status are rendered inside the
-// ACCOUNT dropdown further down this file.
+// ---------- which page are we on? ----------
+
+$currentPage = basename(parse_url($_SERVER['PHP_SELF'], PHP_URL_PATH));
+$isHome = false;
+if ($currentPage == 'home.php') {
+    $isHome = true;
+}
+
+
+// ---------- is a member logged in? ----------
+
+$account_id = null;
+if (isset($_SESSION['account_id'])) {
+    $account_id = $_SESSION['account_id'];
+}
+
+$member_signed_in = false;
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $account_id != null) {
+    $member_signed_in = true;
+}
+
+// if logged in, get the member's name and points
+$member_name = null;
+$member_points = null;
+if ($member_signed_in) {
+    $stmt = mysqli_prepare($link, 'SELECT member_name, points FROM Memberships WHERE account_id = ?');
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 'i', $account_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result) {
+            $row = mysqli_fetch_assoc($result);
+            if ($row) {
+                $member_name = $row['member_name'];
+                $member_points = (int) $row['points'];
+            }
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
+
+
+// ---------- page title and description ----------
+
+if (!isset($pageTitle)) {
+    $pageTitle = null;
+}
+if (!isset($pageDesc)) {
+    $pageDesc = 'Modern Indian cooked over coals. Tandoor, dum and the coast, in Vellore.';
+}
+
+if ($pageTitle) {
+    $fullTitle = htmlspecialchars($pageTitle, ENT_QUOTES) . ' &mdash; Ember';
+} else {
+    $fullTitle = 'Ember &mdash; Dining &amp; Bar';
+}
+
+// homepage gets an extra class (used by the background dimmer)
+$bodyClass = 'site-body';
+if ($isHome) {
+    $bodyClass = 'site-body has-hero';
+}
+
+// navigation links (shown in the header and in the phone menu)
+$navLinks = [
+    ['../menu/menu.php', 'Menu'],
+    ['../about/about.php', 'Our Story'],
+    ['../CustomerReservation/reservePage.php', 'Reservations'],
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,130 +99,106 @@ $sides = mysqli_fetch_all($resultsides, MYSQLI_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- ?v= is the file's last-modified time, so a restyle is never served from cache -->
-    <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.theme.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta name="description" content="<?= htmlspecialchars($pageDesc, ENT_QUOTES) ?>">
+    <meta name="theme-color" content="#14100f">
+    <title><?= $fullTitle ?></title>
 
-    <title>Ember Dining &amp; Bar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- ?v= changes when the file changes, so the browser loads the new version -->
+    <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
+    <!-- same look as the new homepage -->
+    <link rel="stylesheet" href="../css/ember-v2.css?v=<?= @filemtime(__DIR__ . '/../css/ember-v2.css') ?>">
 </head>
 
-<body class="site-body">
-<?php $bgAssets = '../image'; include '../components/background.php'; ?>
-    <!-- Header -->
-
-    <section id="header">
-        <div class="header container">
-            <div class="nav-bar">
+<body class="<?= $bodyClass ?>">
 <?php
-// The homepage already carries the wordmark in the middle of the hero, so the
-// top-left mark is only shown on the other pages.
-if (basename(parse_url($_SERVER['PHP_SELF'], PHP_URL_PATH)) !== 'home.php') {
+// background video (and the loading screen / page transitions)
+$bgAssets = '../image';
+include '../components/background.php';
 ?>
-                <div class="brand">
-                    <a class="nav-link" href="../home/home.php">
-                        <h1>Ember</h1>
-                    </a>
-                </div>
+
+<a class="e-skip" href="#main">Skip to content</a>
+
+<header class="e-masthead">
+    <!-- menu button, only shown on phones -->
+    <button class="e-burger" type="button" aria-expanded="false" aria-controls="ember-menu">
+        <span></span><span></span><span></span>
+        <span class="e-visually-hidden">Menu</span>
+    </button>
+
+<?php
+// the homepage already shows the big logo, so the small one is only on other pages
+if (!$isHome) {
+?>
+    <a class="e-masthead__brand" href="../home/home.php">
+        <span class="e-masthead__wordmark">Ember</span>
+    </a>
 <?php
 }
 ?>
-                <div class="nav-list">
-                    <div class="hamburger">
-                        <div class="bar"></div>
-                    </div>
-                    <div class="navbar-container">
 
-                        <div class="navbar">
-                            <ul>
-                                <li><a href="../menu/menu.php" data-after="Menu">Menu</a></li>
-                                <li><a href="../CustomerReservation/reservePage.php"
-                                        data-after="Service">Reservation</a></li>
-                                <li><a href="../about/about.php" data-after="About">About</a></li>
+    <nav class="e-nav" aria-label="Primary">
+<?php foreach ($navLinks as $navLink) { ?>
+        <a href="<?= $navLink[0] ?>"><?= $navLink[1] ?></a>
+<?php } ?>
 
-<?php
-// Needed before the dropdown so the button can be labelled correctly.
-$account_id = $_SESSION['account_id'] ?? null;
-$member_signed_in = isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true && $account_id != null;
-?>
-                                <div class="dropdown">
-                                    <button class="dropbtn"><?= $member_signed_in ? 'ACCOUNT' : 'LOGIN' ?> <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                    </button>
-                                    <div class="dropdown-content">
-
-<?php
-
-// Create a query to retrieve the member's information
-//$query = "SELECT member_name, points FROM Memberships WHERE account_id = $account_id";
-
-// Execute the query
-//$result = mysqli_query($link, $query);
-
-// Check if the user is logged in
-if ($member_signed_in) {
-    $query = "SELECT member_name, points FROM Memberships WHERE account_id = " . (int)$account_id;
-
-// Execute the query
-$result = mysqli_query($link, $query);
-    // If logged in, show "Logout" link
-    // Check if the query was successful
-    if ($result) {
-        // Fetch the member's information
-        $row = mysqli_fetch_assoc($result);
-        
-        if ($row) {
-            $member_name = $row['member_name'];
-            $points = $row['points'];
-            
-            // Calculate VIP status
-            $vip_status = ($points >= 1000) ? 'VIP' : 'Regular';
-            
-            // Define the VIP tooltip text
-            $vip_tooltip = ($vip_status === 'Regular') ? ($points < 1000 ? (1000 - $points) . ' points to VIP ' : 'You are eligible for VIP') : '';
-            
-            // Output the member's information
-            echo "<p class='logout-link' style='font-size:1.3em; margin-left:15px; padding:5px; color:white; '>$member_name</p>";
-            echo "<p class='logout-link' style='font-size:1.3em; margin-left:15px;padding:5px;color:white; '>$points Points </p>";
-            echo "<p class='logout-link' style='font-size:1.3em; margin-left:15px;padding:5px; color:white; '>$vip_status";
-            
-            // Add the tooltip only for Regular status
-            if ($vip_status === 'Regular') {
-                echo " <span class='tooltip'>$vip_tooltip</span>";
-            }
-            
-            echo "</p>";
-        } else {
-            echo "Member not found.";
-        }
-    } else {
-        echo "Error: " . mysqli_error($link);
-    }
-
-    echo '<a class="logout-link" style="color: white; font-size:1.3em;" href="../customerLogin/profile.php">Profile</a>';
-    echo '<a class="logout-link" style="color: white; font-size:1.3em;" href="../customerLogin/logout.php">Logout</a>';
-} else {
-    // Signed out: offer both ways in, plus sign-up for new members.
-    echo '<a class="login-link" style="color: white; font-size:15px;" href="../customerLogin/login.php">Member Login</a>';
-    echo '<a class="login-link" style="color: white; font-size:15px;" href="../../adminSide/StaffLogin/login.php">Staff Login</a>';
-    echo '<a class="signin-link" style="color: white; font-size:15px;" href="../customerLogin/register.php">Sign Up</a>';
-}
-
-// Close the database connection
-mysqli_close($link);
-?>
-
-
-                                    </div>
-                                </div>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+        <!-- Sign In / Account dropdown -->
+        <div class="e-account">
+            <button class="e-account__button" type="button" aria-expanded="false">
+                <?php if ($member_signed_in) { echo 'Account'; } else { echo 'Sign In'; } ?>
+            </button>
+            <div class="e-account__panel">
+<?php if ($member_signed_in) { ?>
+<?php   if ($member_name !== null) { ?>
+                <span class="e-account__meta">
+                    <strong><?= htmlspecialchars($member_name) ?></strong>
+                    <?= number_format($member_points) ?> points &middot; <?php if ($member_points >= 1000) { echo 'VIP'; } else { echo 'Member'; } ?>
+                </span>
+<?php       if ($member_points < 1000) { ?>
+                <span class="e-account__meta"><?= number_format(1000 - $member_points) ?> points to VIP</span>
+<?php       } ?>
+                <span class="e-account__sep"></span>
+<?php   } ?>
+                <a href="../customerLogin/profile.php">Profile</a>
+                <a href="../customerLogin/logout.php">Sign out</a>
+<?php } else { ?>
+                <a href="../customerLogin/login.php">Member Login</a>
+                <a href="../customerLogin/register.php">Create Account</a>
+                <span class="e-account__sep"></span>
+                <a href="../../adminSide/StaffLogin/login.php">Staff Login</a>
+<?php } ?>
             </div>
         </div>
-    </section>
-    <!-- End Header -->
+    </nav>
+
+    <!-- empty space on the right so the logo stays in the middle on phones -->
+    <span class="e-masthead__spacer" aria-hidden="true"></span>
+</header>
+
+<!-- full screen menu for phones (opened by the menu button) -->
+<div class="e-overlay" id="ember-menu" aria-hidden="true">
+    <nav aria-label="Menu">
+        <ul class="e-overlay__list">
+            <li><a href="../home/home.php">Home</a></li>
+<?php foreach ($navLinks as $navLink) { ?>
+            <li><a href="<?= $navLink[0] ?>"><?= $navLink[1] ?></a></li>
+<?php } ?>
+<?php if ($member_signed_in) { ?>
+            <li><a href="../customerLogin/profile.php">Profile</a></li>
+            <li><a href="../customerLogin/logout.php">Sign out</a></li>
+<?php } else { ?>
+            <li><a href="../customerLogin/login.php">Member Login</a></li>
+<?php } ?>
+        </ul>
+    </nav>
+    <div class="e-overlay__foot">
+        <span class="e-eyebrow">Open seven days &middot; 11:00 &ndash; 22:00</span>
+        <a class="e-eyebrow" href="tel:7777777777">7777777777</a>
+<?php if (!$member_signed_in) { ?>
+        <a class="e-eyebrow" href="../../adminSide/StaffLogin/login.php">Staff Login</a>
+<?php } ?>
+    </div>
+</div>
+
+<main id="main">

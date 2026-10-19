@@ -1,576 +1,211 @@
-/* =====================================================================
-   Ember — mobile layer
-   ---------------------------------------------------------------------
-   Loaded from components/background.php, which every customer page (and the
-   staff login) includes, so this file reaches the pages that link
-   css/style.css AND the standalone ones (login, register, profile,
-   reservation) that do not.
+/* mobile.css - changes for tablets and phones
+   It is loaded after style.css so these rules win on small screens. */
 
-   THE ONE RULE FOR THIS FILE: every selector lives inside a max-width media
-   query. The customer site's own desktop breakpoint is 1200px — that is
-   where the hamburger disappears and the horizontal nav appears — so
-   `max-width: 1199px` is exactly "not the desktop layout" by the site's own
-   definition, and `max-width: 767px` is "phone". Nothing here can reach a
-   desktop viewport. Nothing in this file is unconditional.
-
-   A note on units. Pages that link css/style.css inherit html { font-size:
-   10px }, so 1rem = 10px there. The standalone pages do not link it, so
-   1rem = 16px on those. Rules that have to work on both are written in px.
-   ===================================================================== */
-
-
-/* ---------------------------------------------------------------------
-   1. Below the desktop breakpoint — the hamburger layout
-   ------------------------------------------------------------------ */
-@media only screen and (max-width: 1199px) {
-
-	/* iOS inflates text in narrow columns unless told not to, which was
-	   quietly resizing copy away from the proportions this site is drawn in. */
-	html {
-		-webkit-text-size-adjust: 100%;
-		text-size-adjust: 100%;
-	}
-
-	/* A backdrop photo cannot be attachment:fixed on iOS — it gets sized to
-	   the whole document instead of the window and lands wildly zoomed. */
-	body {
-		background-attachment: scroll;
-	}
-
-	/* The hamburger ----------------------------------------------------
-	   It came with a second ring pulsing outward on a 1s infinite loop, on
-	   top of a 3px solid white border -- a heavy, blinking target on a page
-	   built entirely out of hairlines and restraint. The pulse is gone and
-	   the button is redrawn to the same weight as the rest of the site: one
-	   1px ring, 1px bars, and the accent colour to mark it open. */
-	#header .hamburger {
-		height: 46px;
-		width: 46px;
-		/* style.css draws it at 60px and scales it to 0.8; at 1px borders a
-		   scale factor would render the ring at a fraction of a pixel. */
-		transform: none;
-		border: 1px solid rgba(255, 255, 255, 0.5);
-		margin-right: 6px;
-		transition: border-color 0.3s ease;
-	}
-	#header .hamburger::after {
-		/* The pulsing ring. */
-		content: none;
-		animation: none;
-		display: none;
-	}
-	#header .hamburger .bar {
-		width: 19px;
-		height: 1px;
-		background-color: rgba(255, 255, 255, 0.88);
-		transition: background-color 0.3s ease;
-	}
-	#header .hamburger .bar::before,
-	#header .hamburger .bar::after {
-		background-color: rgba(255, 255, 255, 0.88);
-		transition: top 0.3s ease, bottom 0.3s ease, background-color 0.3s ease;
-	}
-	#header .hamburger .bar::after {
-		top: 6px;
-	}
-	#header .hamburger .bar::before {
-		bottom: 6px;
-	}
-	/* Open: the three rules close to one and the ring picks up the ember. */
-	#header .hamburger.active {
-		border-color: var(--brand-accent, #b1462f);
-	}
-	#header .hamburger.active .bar,
-	#header .hamburger.active .bar::before,
-	#header .hamburger.active .bar::after {
-		background-color: var(--brand-accent, #b1462f);
-	}
-
-	/* The slide-in menu ------------------------------------------------
-	   It was a flat grey slab (#1f1e1e) that belonged to no part of the
-	   site. This is the same warm near-black the header and footer use, so
-	   the panel reads as the site continuing rather than a system menu. */
-	#header .nav-list ul {
-		background-color: rgba(20, 16, 15, 0.97);
-		-webkit-backdrop-filter: blur(8px);
-		backdrop-filter: blur(8px);
-		border-left: 1px solid rgba(255, 255, 255, 0.08);
-		/* Start the links below the hamburger rather than floating them in
-		   the middle of the panel, and let the list scroll if a signed-in
-		   member's account block makes it taller than the screen. */
-		justify-content: flex-start;
-		padding: 108px 22px 48px;
-		overflow-y: auto;
-		-webkit-overflow-scrolling: touch;
-	}
-
-	#header .nav-list ul,
-	#header .nav-list ul li {
-		width: 100%;
-		align-items: stretch;
-	}
-
-	#header .nav-list ul a {
-		/* components/footer.php floats these left for the desktop bar, which
-		   shrink-wraps them: the row divider stopped at the end of the word
-		   and every item sat at a different width. Unfloated, each one is a
-		   full-width row. */
-		float: none;
-		width: 100%;
-		font-size: 20px;
-		font-weight: 400;
-		letter-spacing: 0.28rem;
-		text-align: left;
-		/* 56px of height: comfortably past the 44px minimum a fingertip needs. */
-		padding: 18px 12px;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-	}
-
-	/* The huge ghost word that fans out behind a nav link is a hover flourish.
-	   A finger has no hover, and on a touch screen it can stick after a tap. */
-	#header .nav-list ul a::after {
-		display: none;
-	}
-
-	/* The account / login dropdown ------------------------------------
-	   This was the one genuinely broken thing on a phone: it opened on
-	   :hover only, so on a touch screen there was no way to reach Member
-	   Login, Staff Login, Sign Up, Profile or Logout at all. Inside the
-	   slide-in panel it becomes an inline accordion instead of a floating
-	   popup, opened by the tap handler in js/app.js. */
-	#header .nav-list .dropdown {
-		float: none;
-		width: 100%;
-		overflow: visible;
-	}
-
-	#header .nav-list .dropbtn {
-		width: 100%;
-		padding: 18px 12px;
-		font-size: 20px;
-		letter-spacing: 0.28rem;
-		text-transform: uppercase;
-		/* Left, like the three links above it -- a centred item in a
-		   left-aligned list read as a mistake. */
-		text-align: left;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-		cursor: pointer;
-	}
-
-	#header .nav-list .dropbtn .fa-caret-down {
-		float: right;
-		margin: 4px 2px 0 6px;
-		transition: transform 0.25s ease;
-	}
-
-	#header .nav-list .dropdown.is-open .dropbtn {
-		color: var(--brand-accent, #b1462f);
-	}
-
-	#header .nav-list .dropdown.is-open .dropbtn .fa-caret-down {
-		transform: rotate(180deg);
-	}
-
-	#header .nav-list .dropdown-content {
-		position: static;
-		width: 100%;
-		min-width: 0;
-		background-color: rgba(255, 255, 255, 0.04);
-		box-shadow: none;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-	}
-
-	#header .nav-list .dropdown.is-open .dropdown-content {
-		display: block;
-	}
-
-	#header .nav-list .dropdown-content a,
-	#header .nav-list .dropdown-content p {
-		float: none;
-		width: 100%;
-		text-align: left;
-		font-size: 15px;
-		letter-spacing: 0.12rem;
-		padding: 15px 26px;
-		margin: 0;
-		color: #f3efec;
-	}
-
-	/* The member name / points / status lines carry inline font-size from
-	   components/header.php, so they need the extra weight to be overridden. */
-	#header .nav-list .dropdown-content p.logout-link {
-		font-size: 14px !important;
-		margin-left: 0 !important;
-		color: #b9aea8 !important;
-	}
-
-	#header .nav-list .dropdown-content a.login-link,
-	#header .nav-list .dropdown-content a.signin-link,
-	#header .nav-list .dropdown-content a.logout-link {
-		font-size: 15px !important;
-		border-top: 1px solid rgba(255, 255, 255, 0.06);
-	}
-
-	/* The tooltip is a hover affordance with no touch equivalent; on a phone
-	   it only ever appeared as a stuck black box. */
-	#header .nav-list .dropdown-content .tooltip {
-		display: none !important;
-	}
-
-	/* While the panel is open the page behind it must not scroll — otherwise
-	   the menu stays put and the site slides around underneath it. */
-	body.nav-open {
-		overflow: hidden;
-	}
-
-	/* Give every control a visible, on-brand press state. */
-	a,
-	button,
-	.cta,
-	.add-btn,
-	.btn {
-		-webkit-tap-highlight-color: rgba(177, 70, 47, 0.22);
-	}
+/* TABLET (1100px and smaller) */
+@media only screen and (max-width: 1100px) {
+    :root {
+        --s7: 5.5rem;
+        --s8: 7rem;
+    }
+    .e-spread {
+        grid-template-columns: 1fr;
+        gap: var(--s5);
+    }
+    .e-spread--flip .e-spread__figure {
+        order: 0;
+    }
+    .e-lede {
+        max-width: none;
+    }
+    .e-plate--bleed {
+        aspect-ratio: 16 / 9;
+    }
+    .e-footer__grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--s5) var(--s4);
+    }
+    .e-footer__col:first-child {
+        grid-column: 1 / -1;
+    }
 }
 
-
-/* On a touch screen :hover latches after a tap, which would fight the
-   accordion: the panel would open on tap and refuse to close. Neutralising
-   the hover rule here — and only where there is no real pointer — leaves it
-   fully intact for any mouse-driven window narrow enough to show the
-   hamburger. */
-@media only screen and (max-width: 1199px) and (hover: none) {
-	#header .nav-list .dropdown:hover .dropdown-content {
-		display: none;
-	}
-	#header .nav-list .dropdown.is-open .dropdown-content {
-		display: block;
-	}
+/* SMALL TABLET / BIG PHONE (900px and smaller) - the menu button appears here */
+@media only screen and (max-width: 900px) {
+    .e-masthead {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--s3) var(--gutter);
+        gap: var(--s3);
+    }
+    .e-burger {
+        display: block; flex: 0 0 auto;
+    }
+    .e-masthead__spacer {
+        display: block; width: 2rem; flex: 0 0 auto;
+    }
+    .e-masthead__brand {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .e-masthead__wordmark {
+        font-size: 1.45rem;
+    }
+    .e-nav {
+        display: none;
+    }
+    .e-overlay {
+        justify-content: flex-start;
+    }
+    .e-overlay__list a {
+        line-height: 2.1;
+    }
+    .e-hero {
+        padding-top: 7rem;
+    }
+    .e-dish {
+        grid-template-columns: 1fr auto;
+        gap: 0 var(--s3);
+        padding: var(--s3) 0;
+    }
+    .e-dish__desc {
+        grid-column: 1 / -1;
+    }
+    .e-dish__add {
+        grid-column: 1 / -1;
+        justify-self: start;
+        opacity: 1;
+        transform: none;
+        margin-top: var(--s2);
+        padding: 0.85em 1.4em;
+    }
+    .e-menu__filter {
+        gap: var(--s2) var(--s3);
+    }
+    .e-menu__search {
+        margin-left: 0; width: 100%;
+    }
+    .e-menu__search input {
+        width: 100%;
+    }
+    .e-sig {
+        grid-template-columns: 1fr;
+        gap: var(--s1);
+        padding: var(--s4) 0;
+    }
+    .e-sig__price {
+        justify-self: start;
+    }
 }
 
-
-/* ---------------------------------------------------------------------
-   2. Phones — spacing, type scale and tap targets
-   ------------------------------------------------------------------ */
-@media only screen and (max-width: 767px) {
-
-	/* --- Section rhythm ---------------------------------------------
-	   The desktop padding is drawn for a 1200px column. Kept as-is on a
-	   375px screen it spent more than a fifth of the width on margins. */
-	#projects .projects,
-	#bill .bill-inner {
-		padding: 34px 20px;
-	}
-	#projects .projects {
-		margin: 20px 12px;
-		width: auto;
-	}
-	#about .about,
-	#contact .contact {
-		padding: 72px 0;
-		width: 92%;
-	}
-	#about.about-page .about {
-		padding: 60px 0;
-	}
-	#contact .contact-inner .section-title {
-		margin-bottom: 34px;
-	}
-	#contact .contact-item {
-		padding: 30px 16px;
-	}
-	.contact-label {
-		margin-bottom: 10px;
-	}
-
-	.section-title {
-		font-size: 3rem;
-		letter-spacing: 0.22rem;
-	}
-	.section-title::after {
-		margin-top: 18px;
-	}
-
-	/* --- Menu listing ------------------------------------------------ */
-	.menu-page {
-		padding-top: 76px;
-	}
-	.menu-group {
-		margin-bottom: 44px;
-	}
-	.menu-item {
-		padding: 16px 0;
-	}
-	.menu-item-head {
-		gap: 12px;
-	}
-	.menu-item .item-name {
-		font-size: 1.45rem;
-		line-height: 1.4;
-	}
-	.menu-item-foot {
-		margin-top: 10px;
-	}
-	/* ADD was a 28px-tall target. */
-	.add-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 44px;
-		padding: 0 24px;
-		font-size: 1.2rem;
-		margin-top: 0;
-	}
-	/* The category picker, full width. `select.` rather than a bare class
-	   because components/footer.php styles .menu-category from a <style>
-	   block at the bottom of the body -- later in the cascade than this
-	   file -- so an equal-specificity rule here would silently lose.
-	   Its 20px type is already above the 16px threshold that makes iOS zoom
-	   on focus, so the size is deliberately left alone. */
-	select.menu-category {
-		width: 100%;
-		max-width: 340px;
-		min-height: 48px;
-	}
-
-	/* --- The bill ---------------------------------------------------- */
-	.bill-table {
-		font-size: 1.3rem;
-		margin-top: 22px;
-	}
-	.bill-table th,
-	.bill-table td {
-		padding: 11px 6px;
-	}
-	.bill-table th {
-		font-size: 1rem;
-	}
-	.bill-remove {
-		display: inline-block;
-		min-width: 44px;
-		min-height: 44px;
-		line-height: 44px;
-		text-align: center;
-		font-size: 2.2rem;
-	}
-	.bill-actions {
-		gap: 14px;
-	}
-	.bill-actions .cta {
-		min-height: 44px;
-		display: inline-flex;
-		align-items: center;
-	}
-
-	/* --- The standalone panels: login, register, profile, reservation --
-	   These pages do not link css/style.css, so 1rem is 16px on them and
-	   everything below is written in px to stay predictable. */
-	.login-container,
-	.register-container,
-	.reserve-container,
-	.site-panel {
-		padding: 28px 20px;
-		/* The top margin clears the fixed EMBER mark in the corner, which the
-		   card used to start underneath. */
-		margin: 76px auto 24px;
-		width: auto;
-		max-width: 100%;
-	}
-	body.has-site-panel {
-		padding: 22px 14px;
-	}
-
-	/* login.php and the staff login flex-centre their card inside a body
-	   locked to height:100vh. On a phone the card is taller than the screen,
-	   so centring pushed its top edge above the top of the viewport, where
-	   there is nothing to scroll to and the title was simply gone. Letting
-	   the body grow to its content keeps the card whole; on the pages that
-	   were already height:auto this changes nothing. */
-	body {
-		height: auto;
-		min-height: 100vh;
-	}
-
-	/* .login_wrapper and .register_wrapper are pinned to 400px inside a card
-	   that is only ~340px wide on a phone, so every field and the submit
-	   button ran out past the edge of the card that was supposed to contain
-	   them. The desktop rules keep the 400px; here the wrapper simply fills
-	   whatever the card gives it. */
-	.login_wrapper,
-	.register_wrapper {
-		width: 100%;
-		max-width: 100%;
-		padding: 0;
-	}
-	/* Same problem on the staff login, where the pinned element IS the card
-	   (class="wrapper site-panel"), so only its width is touched -- the
-	   padding it gets from .site-panel above has to survive. */
-	#signup .wrapper {
-		width: 100%;
-		max-width: 100%;
-	}
-
-	/* "RESERVATION" and "CREATE ACCOUNT" ran off the side of the card at
-	   the desktop size. */
-	.login-container .panel-title,
-	.register-container .panel-title,
-	.site-panel .panel-title,
-	.reserve-title {
-		font-size: 22px;
-		letter-spacing: 0.16rem;
-	}
-	.reserve-title::after {
-		margin: 18px auto 30px;
-	}
-	.column h2 {
-		font-size: 15px;
-		letter-spacing: 0.2rem;
-	}
-	.row {
-		gap: 26px;
-	}
-	.column {
-		flex-basis: 100%;
-	}
-
-	/* Form controls -------------------------------------------------
-	   16px is not a style choice: below it, iOS Safari zooms the page in on
-	   focus and leaves the viewer scrolled sideways in a form they then have
-	   to pinch their way out of. The min-height gives every field and button
-	   a 46px target. The compound selectors match the specificity of the
-	   per-page rules in reservePage.php and components/background.php. */
-	.login-container .form-control,
-	.register-container .form-control,
-	.reserve-container .form-control,
-	.site-panel .form-control,
-	input,
-	select,
-	textarea {
-		font-size: 16px;
-	}
-	.login-container .form-control,
-	.register-container .form-control,
-	.reserve-container .form-control,
-	.site-panel .form-control,
-	input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
-	select,
-	textarea {
-		min-height: 46px;
-		padding: 12px 14px;
-	}
-	/* A fixed height was clipping the chosen option in the time picker. */
-	select {
-		height: auto;
-	}
-	/* The two readonly date/time inputs in "Make Reservation"
-	   (reservePage.php:195-198) carry no class="form-control", so they get no
-	   theming and render as default white boxes with black text in the middle
-	   of a dark card. They do that on desktop too -- this only stops the
-	   larger mobile field size from making it louder. Giving them the class
-	   in the markup would fix both at once. */
-	.reserve-container input[readonly] {
-		width: 100%;
-		color: #f3efec;
-		background-color: rgba(255, 255, 255, 0.06);
-		border: 1px solid rgba(255, 255, 255, 0.18);
-		border-radius: 0;
-		margin-bottom: 20px;
-	}
-	textarea {
-		min-height: 96px;
-	}
-	.login-container label,
-	.register-container label,
-	.reserve-container label,
-	.reserve-container .form-label,
-	.site-panel label {
-		font-size: 11px;
-		margin-bottom: 7px;
-	}
-
-	.login-container .btn,
-	.register-container .btn,
-	.reserve-container .btn,
-	.site-panel .btn,
-	.profile-card a,
-	button[type='submit'],
-	input[type='submit'] {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 46px;
-		padding: 12px 26px;
-		font-size: 13px;
-	}
-	/* Full width is the honest shape for a single form's primary action. */
-	.login-container .btn,
-	.register-container .btn {
-		width: 100%;
-	}
-
-	.profile-card .label {
-		display: block;
-		min-width: 0;
-		margin-bottom: 2px;
-	}
-	.profile-card a {
-		width: 100%;
-		margin-right: 0;
-		margin-top: 14px;
-	}
-
-	/* --- Footer ------------------------------------------------------ */
-	#footer .footer {
-		padding-top: 40px;
-	}
-	#footer .social-icon {
-		margin-bottom: 22px;
-	}
-	#footer .social-item {
-		height: 44px;
-		width: 44px;
-		margin: 0 6px;
-	}
-	#footer p {
-		font-size: 1.2rem;
-		text-align: center;
-		padding: 0 16px;
-	}
-
-	/* The fixed corner wordmark on the standalone pages sat over the top of
-	   the card it was supposed to sit above. */
-	.site-brand {
-		top: 16px;
-		left: 18px;
-	}
+/* PHONE (600px and smaller) */
+@media only screen and (max-width: 600px) {
+    :root {
+        --s5: 2.5rem;
+        --s6: 3.25rem;
+        --s7: 4rem;
+        --s8: 5rem;
+    }
+    .e-section {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+    .e-hero {
+        padding: 6.5rem var(--gutter) 8rem;
+    }
+    .e-hero__foot {
+        bottom: var(--s4);
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: var(--s3) var(--s2);
+    }
+    .e-hero__foot > :nth-child(1) {
+        grid-column: 1;
+    }
+    .e-hero__foot > :nth-child(3) {
+        grid-column: 2;
+    }
+    .e-hero__foot > :nth-child(2) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-self: center;
+    }
+    .e-scroll__track {
+        height: 2.25rem;
+    }
+    .e-plate--bleed {
+        aspect-ratio: 4 / 5;
+    }
+    .e-figure--wide picture {
+        aspect-ratio: 4 / 3;
+    }
+    .e-bill__row {
+        grid-template-columns: 1fr auto auto;
+        gap: 0 var(--s2);
+    }
+    .e-bill__qty {
+        grid-column: 2;
+    }
+    .e-bill__actions {
+        gap: var(--s3);
+    }
+    .e-footer__grid {
+        grid-template-columns: 1fr;
+        gap: var(--s4);
+    }
+    .e-footer__base {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--s3);
+    }
+    .footer-signature {
+        font-size: 2.6rem;
+    }
+    .e-cta {
+        width: 100%; justify-content: space-between;
+    }
+    .site-brand {
+        font-size: 1.45rem; top: 22px;
+    }
 }
 
+/* TOUCH SCREENS (no mouse to hover with) */
+@media (hover: none) {
+    .e-dish__add {
+        opacity: 1;
+        transform: none;
+    }
+    .e-account:hover .e-account__panel {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    .e-account.is-open .e-account__panel {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translate(-50%, 0);
+    }
+}
 
-/* ---------------------------------------------------------------------
-   3. Narrow phones (iPhone SE and similar)
-   ------------------------------------------------------------------ */
-@media only screen and (max-width: 400px) {
-	.section-title {
-		font-size: 2.6rem;
-	}
-	.login-container .panel-title,
-	.register-container .panel-title,
-	.site-panel .panel-title,
-	.reserve-title {
-		font-size: 19px;
-		letter-spacing: 0.12rem;
-	}
-	.login-container,
-	.register-container,
-	.reserve-container,
-	.site-panel {
-		padding: 24px 16px;
-	}
-	#projects .projects,
-	#bill .bill-inner {
-		padding: 28px 14px;
-	}
-	.menu-item .item-name {
-		font-size: 1.35rem;
-	}
+/* PHONE TURNED SIDEWAYS */
+@media only screen and (max-height: 520px) and (orientation: landscape) {
+    .e-hero {
+        min-height: auto;
+        padding: 6rem var(--gutter) 4rem;
+    }
+    .e-scroll {
+        display: none;
+    }
+    .brand-word {
+        font-size: 32px; letter-spacing: 4px;
+    }
+    .brand-rule {
+        margin-top: 18px;
+    }
+    .brand-tagline {
+        margin-top: 14px; font-size: 11px; letter-spacing: 4.5px;
+    }
 }

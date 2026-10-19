@@ -1,4 +1,5 @@
 <?php
+// posTable.php - POS: the board of all tables (free / busy)
 session_start(); // Ensure session is started
 require_once 'checkIfLoggedIn.php';
 ?>
@@ -11,7 +12,8 @@ require_once '../config.php'; // Include your database configuration
 
 <div class="wrapper">
     <div class="container-fluid pt-5">
-        <h2>Floor</h2>
+        <h2>Point of Sale</h2>
+        <p class="pg-sub" style="margin-bottom: 1.2rem;">Tap a table to add dishes and take payment.</p>
 
         <div class="table-board">
             <?php
@@ -78,11 +80,11 @@ require_once '../config.php'; // Include your database configuration
                         'free' => 'Available',
                         'busy' => 'Occupied',
                         'held' => 'Reserved',
-                        'idle' => 'No bill',
+                        'idle' => 'Available',
                     );
                     ?>
                     <a class="table-tile is-<?= $state ?>"
-                       href="orderItem.php?bill_id=<?= $latestBillID ?>&amp;table_id=<?= $table_id ?>">
+                       href="orderItem.php?table_id=<?= $table_id ?>">
                         <span class="tile-label">Table</span>
                         <span class="tile-id"><?= $table_id ?></span>
                         <span class="tile-capacity">Seats <?= $capacity ?></span>

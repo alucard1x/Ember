@@ -1,110 +1,62 @@
 <?php
+// account-panel.php - staff panel: View All Accounts. Every login (Accounts table) with who it belongs to:
+// a staff member, a member, or nobody yet. New accounts are added from the Members or Staff page.
 session_start(); // Ensure session is started
 require_once '../posBackend/checkIfLoggedIn.php';
+include '../includes/dashHeader.php';
+require_once '../config.php';
+
+// LEFT JOIN to both tables: an account can belong to a staff member or to a member
+$sql = "SELECT a.account_id, a.email, a.phone_number, a.register_date,
+               s.staff_name, s.role, m.member_name
+        FROM Accounts AS a
+        LEFT JOIN Staffs AS s ON s.account_id = a.account_id
+        LEFT JOIN Memberships AS m ON m.account_id = a.account_id
+        ORDER BY a.account_id";
+$accounts = mysqli_fetch_all(mysqli_query($link, $sql), MYSQLI_ASSOC);
 ?>
-<?php include '../includes/dashHeader.php'; ?>
-    <style>
-        .wrapper{ width: 1300px; padding-left: 200px; padding-top: 20px  }
-    </style>
 
 <div class="wrapper">
-    <div class="container-fluid pt-5 pl-600">
-        <div class="row">
-            <div class="m-50">
-                <div class="mt-5 mb-3">
-                    <h2 class="pull-left">Account Details</h2>
-                    <a href="../staffCrud/createStaff.php" class="btn btn-outline-dark"><i class="fa fa-plus"></i> Add Staff</a>
-                    <a href="../customerCrud/createCust.php" class="btn btn-outline-dark"><i class="fa fa-plus"></i> Add Memberships</a>
-                </div>
-                
-                <div class="mb-3">
-                    <form method="POST" action="#">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input required type="text" id="search" name="search" class="form-control" placeholder="Enter Account ID, Email">
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-dark">Search</button>
-                            </div>
-                            <div class="col" style="text-align: right;" >
-                                <a href="account-panel.php" class="btn btn-light">Show All</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                
-                <?php
-                // Include config file
-                require_once "../config.php";
-
-                if (isset($_POST['search'])) {
-                    if (!empty($_POST['search'])) {
-                        $search = mysqli_real_escape_string($link, $_POST['search']);
-
-                        $sql = "SELECT *
-                                FROM Accounts
-                                WHERE email LIKE '%$search%' OR account_id LIKE '%$search%'
-                                ORDER BY account_id;";
-                    } else {
-                        // Default query to fetch all accounts
-                        $sql = "SELECT *
-                                FROM Accounts
-                                ORDER BY account_id;";
-                    }
-                } else {
-                    // Default query to fetch all accounts
-                    $sql = "SELECT *
-                            FROM Accounts
-                            ORDER BY account_id;";
-                }
-
-                if ($result = mysqli_query($link, $sql)) {
-                    if (mysqli_num_rows($result) > 0) {
-                        echo '<div class="table-scroll"><table class="table table-bordered table-striped">';
-                        echo "<thead>";
-                        echo "<tr>";
-                        echo "<th>Account ID</th>";
-                        echo "<th>Email</th>";
-                        echo "<th>Register Date</th>";
-                        echo "<th>Phone Number</th>";
-                        echo "<th>Password</th>";
-                        //echo "<th>Account Type</th>"; // Display account type
-                       // echo "<th>Delete</th>";
-                        echo "</tr>";
-                        echo "</thead>";
-                        echo "<tbody>";
-                        while ($row = mysqli_fetch_array($result)) {
-                            echo "<tr>";
-                            echo "<td>" . $row['account_id'] . "</td>";
-                            echo "<td>" . $row['email'] . "</td>";
-                            echo "<td>" . $row['register_date'] . "</td>";
-                            echo "<td>" . $row['phone_number'] . "</td>";
-                            echo "<td>" . $row['password'] . "</td>";
-                            //echo "<td>" . ucfirst($row['account_type']) . "</td>"; // Display account type
-                          //  echo "<td>";
-                          //  $deleteSQL = "DELETE FROM Accounts WHERE account_id = '" . $row['account_id'] . "';";
-                           // echo '<a href="../accountCrud/deleteAccountVerify.php?id=' . $row['account_id'] . '" title="Delete Record" data-toggle="tooltip" '
-                           //         . 'onclick="return confirm(\'Admin permission Required!\n\nAre you sure you want to delete this Account?\n\nThis will alter other modules related to this Account!\n\')"><span class="fa fa-trash text-black"></span></a>';
-                           // echo "</td>";
-                            echo "</tr>";
-                        }
-                        echo "</tbody>";
-                        echo "</table></div>";
-                        // Free result set
-                        mysqli_free_result($result);
-                    } else {
-                        echo '<div class="alert alert-danger"><em>No records were found.</em></div>';
-                    }
-                } else {
-                    echo "Oops! Something went wrong. Please try again later.";
-                }
-
-                // Close connection
-                mysqli_close($link);
-                ?>
+    <div class="container-fluid">
+        <div class="pg-head">
+            <div>
+                <h2>All Accounts</h2>
+                <p class="pg-sub">Every login in the database. To add one, use the <a href="customer-panel.php">Members</a> or <a href="staff-panel.php">Staff</a> page.</p>
             </div>
         </div>
+
+        <div class="pg-tools">
+            <input type="search" class="form-control pg-search" placeholder="Search name, email or type…" data-filter="#accounts-list">
+            <span class="pg-count" data-count><?= count($accounts) ?> accounts</span>
+        </div>
+
+        <div class="table-scroll"><table class="table" id="accounts-list">
+            <thead><tr><th>Login number</th><th>Belongs to</th><th>Type</th><th>Email</th><th>Phone</th><th>Created</th></tr></thead>
+            <tbody>
+<?php foreach ($accounts as $a) {
+        if ($a['staff_name'] != null) {
+            $who = $a['staff_name'];
+            $type = '<span class="pg-tag is-gold">Staff &middot; ' . htmlspecialchars($a['role']) . '</span>';
+        } elseif ($a['member_name'] != null) {
+            $who = $a['member_name'];
+            $type = '<span class="pg-tag is-green">Member</span>';
+        } else {
+            $who = '—';
+            $type = '<span class="pg-tag">Not used</span>';
+        } ?>
+                <tr>
+                    <td><?= (int) $a['account_id'] ?></td>
+                    <td><?= htmlspecialchars($who) ?></td>
+                    <td><?= $type ?></td>
+                    <td><?= htmlspecialchars((string) $a['email']) ?></td>
+                    <td><?= htmlspecialchars((string) $a['phone_number']) ?></td>
+                    <td><?= $a['register_date'] ? date('j M Y', strtotime($a['register_date'])) : '' ?></td>
+                </tr>
+<?php } ?>
+            </tbody>
+        </table></div>
     </div>
 </div>
 
+<script src="../js/staffPages.js"></script>
 <?php include '../includes/dashFooter.php'; ?>
